@@ -4,28 +4,69 @@
 
 int main()
 {
-	char filename[20];
-	printf("Dateiname: ");
-	scanf("%s",filename);
+	char filenamec[20];
+	printf("Dateiname: (beispiel.c) ");
+	scanf("%s",filenamec);
 	char call[80] = "gcc -std=c99 -Wall -pedantic -o";
-	char filenamec[22];
+	//char filename[18];
 	//filenamec = strcat(filename, ".c");
-	int i = 0;
-	for(int i = 0; i <= 20; i++){
-		if(filename[i] != 127 && filename[i] != 0){
-			filenamec[i] = filename[i];
+	int b = 1;
+	/*for(int i = 0; i < 18; i++){
+		if(filenamec[i] != 46){
+			filename[i] = filenamec[i];
 			//DEBUG
 			printf("%d %d %c \n",i,filenamec[i],filenamec[i]);
 		}else{
-			filenamec[i] = (char)".";
-			printf("%d %d %c \n",i,filenamec[i],filenamec[i]);
-			filenamec[i+1] = (char)'c';
-			printf("%d %d %c \n",i,filenamec[i],filenamec[i]);
-			filenamec[i+2] = filename[i];
-			printf("%d %d %c \n",i,filenamec[i],filenamec[i]);
-			i+=2;
+			if(filenamec[i+1] == 99){
+				b = 1;
+				break;
+			}else{
+				return 2;
+			}
+
 		}
+	}*/
+	//printf("%s %s %s",call,filename,filenamec);
+
+	char syscall[118];
+	int j = 0;
+	int k = 0;
+	while(call[k] != 111){
+
+		//DEBUG
+		printf("%d %c %d %c \n",k,call[k],j,syscall[j]);
+		syscall[j] = call[k];
+		j++;
+		k++;
 	}
-	printf("%s %s %s",*call,*filename,*filenamec);
-	return 0;
+	syscall[j++] = 111;
+	syscall[j++] = 32;
+	k = 0;
+	while(filenamec[k] != 46){
+
+				//DEBUG
+				printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
+		syscall[j++] = filenamec[k++];
+
+	}
+	syscall[j++] = 32;
+	k = 0;
+	while(filenamec[k] != 46){
+
+				//DEBUG
+				printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
+		syscall[j++] = filenamec[k++];
+
+	}
+	syscall[j] = 46;
+	syscall[j+1] = 99;
+	syscall[j+2] = 0;
+
+	if(b){
+		printf("%s \n",syscall);
+		system(syscall);
+		return 0;
+	}else{
+		return 1;
+	}
 }

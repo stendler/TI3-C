@@ -1,3 +1,6 @@
+//Tutor: Thomas
+//Bearbeiter: Jasmine Cavael, Maximilian Stendler
+
 #include <stdio.h>
 
 int main()

@@ -64,66 +64,66 @@ int killChars(char *c, int len){
 //Normaliesieren:
 //A-Z = 0-25 | 0-9 = 26-35
 void norm(char *c, int len){
-  printf("Normaliesieren: \n");
+  //printf("Normaliesieren: \n");
   for(int i = 0;
       i<len;
       i++){
         //DEBUG
-        printf("%c %d -> ",c[i],c[i]);
+        //printf("%c %d -> ",c[i],c[i]);
         if(c[i]>=65 && c[i]<=90){
           c[i] -= 65;
         }else{
           c[i] -= 22;
         }
         //DEBUG
-        printf("%c %d\n",c[i],c[i]);
+      //  printf("%c %d\n",c[i],c[i]);
       }
 }
 
 //Zuruecknormalisieren
 //0-25 -> 65-90 | 26-35 -> 48-57
 void deNorm(char *c, int len){
-  printf("DeNormalisieren: \n");
+//  printf("DeNormalisieren: \n");
   for(int i = 0;
       i<len;
       i++){
         //DEBUG
-        printf("%c %d-> ",c[i],c[i]);
+      //  printf("%c %d-> ",c[i],c[i]);
         if(c[i] <= 25){
           c[i] += 65;
         }else{
           c[i] += 22;
         }
         //DEBUG
-        printf("%c %d\n",c[i],c[i]);
+      //  printf("%c %d\n",c[i],c[i]);
       }
 }
 
-//encrypt: Indizes von text & code addieren
-char* encrypt(char *text,char *code,int len){
-  char ret[len];
+void encrypt(char *text,char *code, char *chiffre,int len){
   norm(text,len);
   norm(code,len);
   for(int i = 0;
       i<len;
       i++){
-        ret[i] = (text[i]+code[i])%36;
+        chiffre[i] = (text[i]+code[i])%36;
       }
-  deNorm(ret,len);
-  return ret;
+  deNorm(chiffre,len);
 }
-//decrypt: Indizes von text & code subtrahieren
-char* decrypt(char *chiffre, char *code, int len){
-  char ret[len];
+
+void decrypt(char *chiffre, char *code,char *text, int len){
   norm(chiffre,len);
   norm(code,len);
   for(int i = 0;
       i<len;
       i++){
-        ret[i] = (chiffre[i]-code[i])%36;
+        int help  = (chiffre[i]-code[i])%36;
+        if(help < 0){
+            help+=36;
+        }
+        text[i] = help;
+        //printf("%d - %d mod 36 = %d\n",chiffre[i],code[i],text[i]);
       }
-  deNorm(ret,len);
-  return ret;
+  deNorm(text,len);
 }
 
 int main(){
@@ -167,9 +167,9 @@ int main(){
   leng = killChars(text,leng);
 
   //DEBUG
-  printf("%s\n",text);
-  printf("%s\n",codewort);
-  printf("%d %d\n",leng,clen);
+//  printf("%s\n",text);
+//  printf("%s\n",codewort);
+  //printf("%d %d\n",leng,clen);
 
   //Codewort auf Länge des Textes bringen
   //»»
@@ -180,14 +180,16 @@ int main(){
       //DEBUG
       //printf("%d %d %c\n",i,mod,code[i]);
     }
-    printf("%s\n",code);
+  //  printf("%s\n",code);
+
+  char chiffre[leng];
 
   if(boolean == 0){
-    printf("%s\n",encrypt(text,code,leng));
+    encrypt(text,code,chiffre,leng);
   }else{
-    printf("%s\n",decrypt(text,code,leng));
+    decrypt(text,code,chiffre,leng);
   }
-
+  printf("%s \n",chiffre);
 
   return 0;
 }

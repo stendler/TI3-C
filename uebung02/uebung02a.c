@@ -55,32 +55,40 @@ int killChars(char *c[], int len){
 int killSpace(char *c, int len){
   int ret = len;
   int j = 0;
-  for(int i = 0;
+  int i = 0;
+  for(i;
       i < len;
       i++)
   {
-      /*
-      if(c[j]==32){
-        j++;
-      }
-      */
       if(!((c[j]>=48 && c[j]<=57) || ((c[j]>=65) && (c[j]<=90)))){
-        j++;
+        i--;
+        ret--;
+      }else{
+        c[i] = c[j];
+        //DEBUG
+        //printf("%d %c %d %c len: %d\n",i,c[i],j,c[j],ret);
       }
-
-      //DEBUG
-      printf("%d %c %d %c \n",i,c[i],j,c[j]);
-
-      c[i] = c[j];
       j++;
       if(j > len){
         c[i] = 0;
       }
-      if(j == len){
-        ret = i+1;
+      if(j >= len){
+        //ret = i+1;
         //len = i;
+        //DEBUG
+        //printf("BREAK: j >= %d, ret=%d\n",len,ret);
+        break;
+      }
+      if(j == ret){
+        //DEBUG
+        //printf("BREAK: j == %d\n",ret);
         //break;
       }
+  }
+  //DEBUG
+  //printf("i=%d \n",i);
+  if(i<len){
+    c[i+1] = 0;
   }
   return ret;
 }

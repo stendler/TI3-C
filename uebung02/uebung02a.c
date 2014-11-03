@@ -28,7 +28,30 @@ void toUpper(char *c, int len){
   }
 }
 
+//TEST killSpace mit rekursion:
+/*
+char testChar(char *c[], int i){
+  printf("%c\n",c[i]);
+  if(c[i] == 0 || c[i] == 127){
+    return ;
+  }else if((c[i]>=48 && c[i]<=57) || ((c[i]>=65) && (c[i]<=90))){
+    return c[i];
+  }else{
+    return testChar(c[i++],i);
+  }
+}
+
+int killChars(char *c[], int len){
+  int j = 0;
+  ret = len;
+  testChar[c,j];
+  return j;
+}
+*/
+
+
 //entfernt alle Leerzeichen aus einem Array von chars
+//TODO: alle Sonderzeichen
 int killSpace(char *c, int len){
   int ret = len;
   int j = 0;
@@ -36,12 +59,17 @@ int killSpace(char *c, int len){
       i < len;
       i++)
   {
+      /*
       if(c[j]==32){
+        j++;
+      }
+      */
+      if(!((c[j]>=48 && c[j]<=57) || ((c[j]>=65) && (c[j]<=90)))){
         j++;
       }
 
       //DEBUG
-      //printf("%d %c %d %c \n",i,c[i],j,c[j]);
+      printf("%d %c %d %c \n",i,c[i],j,c[j]);
 
       c[i] = c[j];
       j++;
@@ -97,7 +125,7 @@ int main(){
 
   //Laut Aufgabenstellung keine Leerzeichen
   leng = killSpace(text, leng);
-
+  //leng = killChars(text,leng);
   //DEBUG
   printf("%s\n",text);
   printf("%s\n",codewort);

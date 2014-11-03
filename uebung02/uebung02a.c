@@ -28,31 +28,8 @@ void toUpper(char *c, int len){
   }
 }
 
-//TEST killSpace mit rekursion:
-/*
-char testChar(char *c[], int i){
-  printf("%c\n",c[i]);
-  if(c[i] == 0 || c[i] == 127){
-    return ;
-  }else if((c[i]>=48 && c[i]<=57) || ((c[i]>=65) && (c[i]<=90))){
-    return c[i];
-  }else{
-    return testChar(c[i++],i);
-  }
-}
-
-int killChars(char *c[], int len){
-  int j = 0;
-  ret = len;
-  testChar[c,j];
-  return j;
-}
-*/
-
-
 //entfernt alle Leerzeichen aus einem Array von chars
-//TODO: alle Sonderzeichen
-int killSpace(char *c, int len){
+int killChars(char *c, int len){
   int ret = len;
   int j = 0;
   int i = 0;
@@ -73,16 +50,9 @@ int killSpace(char *c, int len){
         c[i] = 0;
       }
       if(j >= len){
-        //ret = i+1;
-        //len = i;
         //DEBUG
         //printf("BREAK: j >= %d, ret=%d\n",len,ret);
         break;
-      }
-      if(j == ret){
-        //DEBUG
-        //printf("BREAK: j == %d\n",ret);
-        //break;
       }
   }
   //DEBUG
@@ -93,10 +63,40 @@ int killSpace(char *c, int len){
   return ret;
 }
 
+//Normaliesieren:
+//A-Z = 0-25 | 0-9 = 26-35
+void norm(char *c, int len){
+  for(int i = 0;
+      i<len;
+      i++){
+        if(c[i]>=65 && c[i]<=90){
+          c[i] -= 65;
+        }else{
+          c[i] -= 12;
+        }
+      }
+}
+
+//Zuruecknormalisieren
+//0-25 -> 65-90 | 26-35 -> 48-57
+void normB(char *c, int len){
+  for(int i = 0;
+      i<len;
+      i++){
+        if(c[i] <= 25){
+          c[i] += 65;
+        }else{
+          c[i] += 12;
+        }
+      }
+}
+
+//encrypt: Indizes von text & code addieren
+//decrypt: Indizes von text & code subtrahieren
+
 int main(){
   char codewort[11];
   char text[101];
-
 
   printf("Text (max 100): ");
   scanf("%[^\n]s",text);
@@ -104,18 +104,19 @@ int main(){
   printf("Codewort (max. 10): ");
   scanf("%s",codewort);
 
-  //Laenge der reinen Texteingabe
-  int leng = sizeof text / sizeof *text;
-  int clen = sizeof codewort / sizeof *codewort;
-  printf("%d %d\n",leng,clen);
+  //Laenge der reinen Texteingabe -- gibt nur die Gesamtlaenge des Arrays zurück
+  //int leng = sizeof text / sizeof *text;
+  //int clen = sizeof codewort / sizeof *codewort;
+  //printf("%d %d\n",leng,clen);
 
-  //DEBUG -- laengen Messung
+  //Laengen Messung
   //text
-  leng = 0;
+  leng = 0; //text length
   while(text[leng]!=0 && text[leng] != 127){
     leng++;
   }
-  clen = 0;
+  //codewort
+  clen = 0; //Code length
   while(codewort[clen]!=0 && codewort[clen] != 127){
     clen++;
   }
@@ -131,14 +132,12 @@ int main(){
   //DEBUG
   //printf("%s\n",text);
 
-  //Laut Aufgabenstellung keine Leerzeichen
-  leng = killSpace(text, leng);
-  //leng = killChars(text,leng);
+  //Laut Aufgabenstellung keine Sonderzeichen
+  leng = killChars(text,leng);
   //DEBUG
   printf("%s\n",text);
   printf("%s\n",codewort);
   printf("%d %d\n",leng,clen);
-
 
   //Codewort auf Länge des Textes bringen
   //»»

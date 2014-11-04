@@ -2,36 +2,19 @@
 #include <string.h>
 #include <stdlib.h>
 
-int main()
+int main(int argc, char *argv[])
 {
 	char filenamec[20];
 	printf("Dateiname: (beispiel.c) ");
 	scanf("%s",filenamec);
 	char call[80] = "gcc -std=c99 -Wall -pedantic -o";
-	//char filename[18];
-	//filenamec = strcat(filename, ".c");
-	int b = 1;
-	/*for(int i = 0; i < 18; i++){
-		if(filenamec[i] != 46){
-			filename[i] = filenamec[i];
-			//DEBUG
-			printf("%d %d %c \n",i,filenamec[i],filenamec[i]);
-		}else{
-			if(filenamec[i+1] == 99){
-				b = 1;
-				break;
-			}else{
-				return 2;
-			}
 
-		}
-	}*/
-	//printf("%s %s %s",call,filename,filenamec);
+	int b = 1;
 
 	char syscall[118];
 	int j = 0;
 	int k = 0;
-	while(call[k] != 111){
+	while(call[k] != 111){ //solange wiederholen, bis man beim o (111) ankommt
 
 		//DEBUG
 		printf("%d %c %d %c \n",k,call[k],j,syscall[j]);
@@ -39,28 +22,27 @@ int main()
 		j++;
 		k++;
 	}
-	syscall[j++] = 111;
-	syscall[j++] = 32;
+	syscall[j++] = 111; //das o hinzufuegen
+	syscall[j++] = 32;	//Leerzeichen
 	k = 0;
-	while(filenamec[k] != 46){
+	while(filenamec[k] != 46){ //dateinamen bis zum '.' (46) einfuegen
+
+		//DEBUG
+		printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
+		syscall[j++] = filenamec[k++];
+	}
+	syscall[j++] = 32; //Leerzeichen
+	k = 0;
+	while(filenamec[k] != 46){ //same as above
 
 				//DEBUG
 				printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
 		syscall[j++] = filenamec[k++];
 
 	}
-	syscall[j++] = 32;
-	k = 0;
-	while(filenamec[k] != 46){
-
-				//DEBUG
-				printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
-		syscall[j++] = filenamec[k++];
-
-	}
-	syscall[j] = 46;
-	syscall[j+1] = 99;
-	syscall[j+2] = 0;
+	syscall[j] = 46; 		//Punkt '.' hinzufuegen
+	syscall[j+1] = 99;	//ein c (99) hinzuguegen
+	syscall[j+2] = 0;		//Ende des Strings
 
 	if(b){
 		printf("%s \n",syscall);

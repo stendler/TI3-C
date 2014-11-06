@@ -1,6 +1,9 @@
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael, Maximilian Stendler
-
+/*Uebung 02
+****Aufgabe 2a)
+****Vigenere-Chiffre
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,10 +36,12 @@ int killChars(char *c, int len){
   int ret = len;
   int j = 0;
   int i = 0;
-  while(i < len)
+  while(j < len && i < ret)
   {
       if(!((c[j]>=48 && c[j]<=57) || ((c[j]>=65) && (c[j]<=90)))){
         ret--;
+        //DEBUG
+        //printf("%d %c %d %c len: %d\n",i,c[i],j,c[j],ret);
       }else{
         c[i] = c[j];
         i++;
@@ -44,20 +49,13 @@ int killChars(char *c, int len){
         //printf("%d %c %d %c len: %d\n",i,c[i],j,c[j],ret);
       }
       j++;
-      if(j > len){
-        c[i] = 0;
-      }
-      if(j >= len){
-        //DEBUG
-        //printf("BREAK: j >= %d, ret=%d\n",len,ret);
-        break;
-      }
+  }
+  while(i<ret){
+    c[i++] = 32;
   }
   //DEBUG
-  //printf("i=%d \n",i);
-  if(i<len){
-    c[i+1] = 0;
-  }
+  //printf("%d %c %d %c len: %d\n",i,c[i],j,c[j],ret);
+
   return ret;
 }
 
@@ -145,14 +143,19 @@ int main(){
   int leng = 0; //text length
   while(text[leng]!=0 && text[leng] != 127){
     leng++;
+    //printf(" %d ",text[leng]);
   }
   //--codewort
   int clen = 0; //Code length
   while(codewort[clen]!=0 && codewort[clen] != 127){
     clen++;
   }
+  if(leng>100 || clen > 10){
+    printf("ERROR: Eingaben zu lang.\n");
+    return -11;
+  }
 
-  //printf("%d %d\n",leng,clen);
+  printf("%d %d\n",leng,clen);
   //DEBUG
   //printf("\n %s \n %s len: %d \n",codewort, text,leng);
 
@@ -165,31 +168,42 @@ int main(){
 
   //Laut Aufgabenstellung keine Sonderzeichen
   leng = killChars(text,leng);
+  clen = killChars(codewort,clen);
 
   //DEBUG
-//  printf("%s\n",text);
-//  printf("%s\n",codewort);
+  //  printf("%s\n",text);
+  //  printf("%s\n",codewort);
   //printf("%d %d\n",leng,clen);
 
   //Codewort auf Länge des Textes bringen
-  //»»
-    char code[leng];
-    for(int i = 0;i<leng;i++){
-      int mod = i%clen;
-      code[i] = codewort[mod];
-      //DEBUG
-      //printf("%d %d %c\n",i,mod,code[i]);
-    }
+  char code[leng];
+  for(int i = 0;i<leng;i++){
+    int mod = i%clen;
+    code[i] = codewort[mod];
+    //DEBUG
+    //printf("%d %d %c\n",i,mod,code[i]);
+  }
+
+  //DEBUG
   //  printf("%s\n",code);
 
+  //String fuer das ver-/entschluesselte ergebnis
   char chiffre[leng];
 
+  //ent- oder verschluesseln
   if(boolean == 0){
     encrypt(text,code,chiffre,leng);
   }else{
     decrypt(text,code,chiffre,leng);
   }
-  printf("%s \n",chiffre);
+
+  //ergebnis ausgeben
+  for(int i=0;i<leng;i++){
+    printf("%c",chiffre[i]);
+  }
+  printf("\n");
+
+  //printf("\n %s \n",chiffre); warum auch immer, aber %s ist unzuverlaessig: manchemal wird ein zeichen nicht ausgegebn und manchmal eins zu viel
 
   return 0;
 }

@@ -1,15 +1,17 @@
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
-	if(argc == 1){
-		char filenamec = parse_command(argv[1]);		//Eingabe des Quelldateinamen
+	if(argc == 2){
+		char *filenamec = argv[1];	//Eingabe des Quelldateinamen
 		printf("Quell-Dateiname: %s \n",filenamec);
 		char call[80] = "gcc -std=c99 -Wall -pedantic -o"; //Systemaufruf ohne Dateinamen
-
-		int b = 1;
 
 		char syscall[118];
 		int j = 0;
@@ -25,11 +27,14 @@ int main(int argc, char *argv[])
 		syscall[j++] = 32;	//Leerzeichen
 		k = 0;
 		//TODO: Outputfilename als optionalen Parameter zulassen
+		printf("Zieldateiname: ");
 		while(filenamec[k] != 46){ //dateinamen bis zum '.' (46) einfuegen
 			//DEBUG
 			//printf("%d %c %d %c \n",k,filenamec[k],j,syscall[j]);
+			printf("%c",filenamec[k]);
 			syscall[j++] = filenamec[k++]; //Outputdateiname wird hinzuegfuegt
 		}
+		printf("\n");
 		syscall[j++] = 32; //Leerzeichen
 		k = 0;
 		while(filenamec[k] != 46){ //same as above

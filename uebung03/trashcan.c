@@ -2,6 +2,8 @@
  * File: trashcan.c
  * TI 3 - Betriebs- und Kommunikationssysteme
  * Freie Universitaet Berlin
+ //Tutor: Thomas
+ //Bearbeiter: Jasmine Cavael, Maximilian Stendler
  */
 #include <unistd.h>
 #include <sys/types.h>

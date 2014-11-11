@@ -1,0 +1,9 @@
+Shell-Befehle zur Dateimanipulation
+
+Datei erzeugen - touch
+Datei kopieren - cp
+Datei anzeigen - cat
+Datei verschieben - mv
+Ordnerinhalt anzeigen - ls
+
+uogribdfbjrjk

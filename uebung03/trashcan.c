@@ -29,25 +29,28 @@ char copy_buffer[BUFSIZE];
  */
 int copy(char *sourcename, char *targetname)
 {
-  //neue Datei erstellen : targetname
   //open() target //ueberpruefen, ob targetname im Verzeichnis vorhanden
   int target = open(targetname,O_RDWR);
   int source = open(sourcename,O_RDONLY);
 
-  if(target >= 0 || source < 0){
+  if(source < 0){
     close(source);
     close(target);
     return -1;
+  }else if(target >= 0){
+    close(source);
+    close(target);
+    return -2;
   }else{
     close(target);
+    //neue Datei erstellen : targetname
     target = open(targetname,O_RDWR|O_CREAT);
 
     //dateiinhalt von source kopieren
-    char buffer[BUFSIZE];
     int buff;
     //LOOP
-    while((buff = read(source,buffer,BUFSIZE))){ //read from source -> puffer
-      write(target,buffer,buff); //write from puffer -> target
+    while((buff = read(source,copy_buffer,BUFSIZE))){ //read from source -> puffer
+      write(target,copy_buffer,buff); //write from puffer -> target
     }
     close(target);
     close(source);
@@ -65,26 +68,52 @@ char parse_command(char *command)
 /* erzeugt einen Ordner foldername */
 int setup_trashcan(char *foldername)
 {
+  mkdir(foldername);
   return 0;
 }
 
 /* führt trashcan -p[ut] filename aus */
 int put_file(char *foldername, char *filename)
 {
-  return 0;
+  char* pfad = foldername;
+  strcat(pfad,filename);
+  int ret = copy(filename,pfad);
+  if(ret){
+    //delete old file
+    if(!remove(filename)){
+      ret = -3;
+    }
+    return ret;
+  }else{
+    return ret;
+  }
 }
-
 
 /* führt trashcan -g[et] filename aus */
 int get_file(char *foldername, char *filename)
 {
-  return 0;
+  //TODO: ist Datei bereits im verzeichnis?
+  //falls ja: ABBRUCH!
+  char* pfad = foldername;
+  strcat(pfad,filename);
+  int ret = copy(pfad,filename);
+  if(ret){
+    //delete old file
+    if(!remove(pfad)){
+        ret = -3;
+    }
+    return ret;
+  }else{
+    return ret;
+
 }
 
 /* führt trashcan -r[emove] filename aus */
 int remove_file(char *foldername, char *filename)
 {
-  return 0;#+
+  char* pfad = foldername;
+  strcat(pfad,filename);
+  return remove(pfad);
 }
 
 

@@ -4,6 +4,7 @@
  * Freie Universitaet Berlin
  //Tutor: Thomas
  //Bearbeiter: Jasmine Cavael, Maximilian Stendler
+ //Aufgabe 2c
  */
 #include <unistd.h>
 #include <sys/types.h>
@@ -30,6 +31,7 @@ char copy_buffer[BUFSIZE];
 int copy(char *sourcename, char *targetname)
 {
   //open() target //ueberpruefen, ob targetname im Verzeichnis vorhanden
+  //printf("start copy\n open streams \n");
   int target = open(targetname,O_RDWR);
   int source = open(sourcename,O_RDONLY);
 
@@ -38,20 +40,34 @@ int copy(char *sourcename, char *targetname)
     close(target);
     return -1;
   }else if(target >= 0){
+    //printf("%d\n",target);
+    //printf("%s\n",targetname);
     close(source);
     close(target);
     return -2;
   }else{
+    //printf("close target stream \n");
     close(target);
     //neue Datei erstellen : targetname
-    target = open(targetname,O_RDWR|O_CREAT);
-
+    //printf("erstelle neue target datei\n");
+    target = open(targetname,O_RDWR|O_CREAT,00666);
+    if(target < 0){
+      //printf("%d\n",target);
+      //printf("%s\n",targetname);
+      close(source);
+      close(target);
+      return -2;
+    }
     //dateiinhalt von source kopieren
     int buff;
     //LOOP
+    //printf("looop\n");
     while((buff = read(source,copy_buffer,BUFSIZE))){ //read from source -> puffer
       write(target,copy_buffer,buff); //write from puffer -> target
+      //printf("%d\n",buff);
     }
+    //printf("%d\n",buff);
+    //printf("close streams\n");
     close(target);
     close(source);
   }
@@ -68,19 +84,27 @@ char parse_command(char *command)
 /* erzeugt einen Ordner foldername */
 int setup_trashcan(char *foldername)
 {
-  mkdir(foldername);
+  mkdir(foldername,00777);
   return 0;
 }
 
 /* führt trashcan -p[ut] filename aus */
 int put_file(char *foldername, char *filename)
 {
-  char* pfad = foldername;
+  char pfad[PATHSIZE];
+  //clear string
+  for(int i = 0;i<PATHSIZE;i++ ){
+    pfad[i] = 0;
+  }
+  strcat(pfad,foldername);
+  strcat(pfad,"/");
   strcat(pfad,filename);
+
   int ret = copy(filename,pfad);
-  if(ret){
+  //printf("%d\n",ret);
+  if(ret==0){
     //delete old file
-    if(!remove(filename)){
+    if(remove(filename)!=0){
       ret = -3;
     }
     return ret;
@@ -92,26 +116,37 @@ int put_file(char *foldername, char *filename)
 /* führt trashcan -g[et] filename aus */
 int get_file(char *foldername, char *filename)
 {
-  //TODO: ist Datei bereits im verzeichnis?
-  //falls ja: ABBRUCH!
-  char* pfad = foldername;
+  char pfad[PATHSIZE];
+  //clear string
+  for(int i = 0;i<PATHSIZE;i++ ){
+    pfad[i] = 0;
+  }
+  strcat(pfad,foldername);
+  strcat(pfad,"/");
   strcat(pfad,filename);
   int ret = copy(pfad,filename);
-  if(ret){
+  //printf("%d\n",ret);
+  if(!ret){
     //delete old file
-    if(!remove(pfad)){
+    if(remove(pfad)){
         ret = -3;
     }
     return ret;
   }else{
     return ret;
-
+  }
 }
 
 /* führt trashcan -r[emove] filename aus */
 int remove_file(char *foldername, char *filename)
 {
-  char* pfad = foldername;
+  char pfad[PATHSIZE];
+  //clear string
+  for(int i = 0;i<PATHSIZE;i++ ){
+    pfad[i] = 0;
+  }
+  strcat(pfad,foldername);
+  strcat(pfad,"/");
   strcat(pfad,filename);
   return remove(pfad);
 }

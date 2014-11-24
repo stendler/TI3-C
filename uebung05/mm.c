@@ -39,14 +39,15 @@ void initialize()
 		head = (memoryBlock*)memory;
 		//Initialisiere head in unserem Speicher <memory>
 		//Unser gesamter Speicher <memory> soll als ein memoryBlock interpretiert werden
-		//Wir müssen beachten, dass der memoryBlock head auch im Speicher <memory> 
-		//abgespeichert wird und somit der head auch Speicher der Größe 
-		//memoryBlockHeaderSize zur Verwaltung bennötigt.
-		//Anfangs ist der restliche Speicher verfügbar und wird dem head als data zugeordnet.
+		//Wir muessen beachten, dass der memoryBlock head auch im Speicher <memory>
+		//abgespeichert wird und somit der head auch Speicher der Groesse
+		//memoryBlockHeaderSize zur Verwaltung benoetigt.
+		//Anfangs ist der restliche Speicher verfuegbar und wird dem head als data zugeordnet.
 		// Data beginnt somit nicht am Anfang von <memory>.
-		
+
 		b_initialized = 1;
-		//TODO INITIALISIERUNG VON HEAD	
+		//TODO INITIALISIERUNG VON HEAD
+
 	}
 }
 
@@ -87,14 +88,14 @@ void* my_malloc(int byteCount)
 	//SUCHE NACH EINEM GEEIGNETEN FREIEN SPEICHERBLOCK, MIT MEHR ALS <byteCount>
 	//VIELEN BYTES
 	//
-	
-	// FALLS ES KEIN PASSENDES ELEMENT GIBT, GEBEN WIR NULL ZURÜCK.
-	
+
+	// FALLS ES KEIN PASSENDES ELEMENT GIBT, GEBEN WIR NULL ZURUECK.
+
 	// Der Knoten block hat genuegend Speicherplatz
-	//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNÖTIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD
-	// UND MARKIERE DIESEN BLOCK 
+	//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNOETIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD
+	// UND MARKIERE DIESEN BLOCK
 	//
-	//RÜCKGABE DES ZEIGERS AUF DEN ZU BENUTZENDEN SPEICHERBEREICH
+	//RueCKGABE DES ZEIGERS AUF DEN ZU BENUTZENDEN SPEICHERBEREICH
 }
 
 //Sofern moeglich teilt die Funktion splitBlock einen Block in 2 Bloecke,
@@ -105,21 +106,21 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 {
 	// Hinweis: Es ist sinnvoll, wenn <block> die Laenge byteCount hat und
 	// der Nachfolger von <block> die Restlaenge umfasst.
-	
-	//TODO 
+
+	//TODO
 	//IMPLEMENTIEREN
-	
+
 	//BERECHNE DIE GROESSE DES NEUEN UND ALTEN BLOCKS
-	
-	
+
+
 	//FALLS EIN WEITERER SPEICHERBLOCK IN DEN ALTEN PASST,
 	//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
-	
+
 	//LEGE DEN NEUEN BLOCK ALS NACHFOLGER VOM ALTEN BLOCK FEST
-	
+
 	// PASSE DIE LAENGE VOM ALTEN BLOCK AN
 
-	
+
 }
 
 
@@ -134,26 +135,26 @@ void my_free(void* p)
 	}
 	//TODO
 	// SUCHE NACH DEM BLOCK MIT ZEIGER <p>
-	
+
 	// FALLS KEINER GEFUNDEN WURDE, GEBE EINE MELDUNG AUS.
-	
+
 	//FREIGEBEN VON DEM ENTSPRECHENDEN SPEICHERBLOCK
-	
+
 	//FREIE SPEICHERBLOECKE MITEINANDER VERSCHMELZEN
 }
 
 //Diese Funktion verschmilzt benachbarte, nicht benutzte Speicherbloecke
 void mergeFreeBlocks()
 {
-	//TODO 
-	// BEGINNE AM ANFANG DER LISTE 
-	// WENN DER AKTUELLE UND DER BENACHBARTE BLOCK FREI SIND, 
+	//TODO
+	// BEGINNE AM ANFANG DER LISTE
+	// WENN DER AKTUELLE UND DER BENACHBARTE BLOCK FREI SIND,
 	// DANN VERSCHMELZE DIESE INDEM DIE DATENLAENGE UND DER NACHFOLGER
 	// VOM AKTUELLEN BLOCK ANGEPASST WERDEN.
 	//IMPLEMENTIEREN
 }
 
-//Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherblöcke aus
+//Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherblï¿½cke aus
 void status()
 {
 	if(!b_initialized)
@@ -169,9 +170,8 @@ void status()
 	while(block != NULL)
 	{
 
-		printf("%d  %p\t %s \t\t %d\t [%p,%p]\t%p\n", ++count, block, boolStr[block->state], block->dataLength, (block->data), ((char*)block->data + block->dataLength-1), (block->nextBlock)); 
+		printf("%d  %p\t %s \t\t %d\t [%p,%p]\t%p\n", ++count, block, boolStr[block->state], block->dataLength, (block->data), ((char*)block->data + block->dataLength-1), (block->nextBlock));
 		block = block->nextBlock;
 	}
 	printf("\n\n");
 }
-

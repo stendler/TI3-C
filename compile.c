@@ -34,6 +34,11 @@ int main(int argc, char *argv[])
 			printf("%c",filenamec[k]);
 			syscall[j++] = filenamec[k++]; //Outputdateiname wird hinzuegfuegt
 		}
+		printf(".out");
+		syscall[j++] = '.';
+		syscall[j++] = 'o';
+		syscall[j++] = 'u';
+		syscall[j++] = 't';
 		printf("\n");
 		syscall[j++] = 32; //Leerzeichen
 		k = 0;

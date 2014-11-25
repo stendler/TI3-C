@@ -48,6 +48,10 @@ void initialize()
 		b_initialized = 1;
 		//TODO INITIALISIERUNG VON HEAD
 
+		// head->data = head + memoryBlockHeaderSize;
+		// head->dataLength = memorySize - memoryBlockHeaderSize;
+		// head->state = not_allocated;
+		// head->nextBlock = NULL;
 	}
 }
 

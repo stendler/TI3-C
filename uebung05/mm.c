@@ -131,20 +131,28 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	// Hinweis: Es ist sinnvoll, wenn <block> die Laenge byteCount hat und
 	// der Nachfolger von <block> die Restlaenge umfasst.
 
-	//TODO
+	//TODO - WIP - needs testing
 	//IMPLEMENTIEREN
 
 	//BERECHNE DIE GROESSE DES NEUEN UND ALTEN BLOCKS
-
+	//current Block size: block->dataLength
+	//needed Block size: byteCount
+	//new block size: dataLength-byteCount
+	//new block size needs to be > memoryBlockHeaderSize
 
 	//FALLS EIN WEITERER SPEICHERBLOCK IN DEN ALTEN PASST,
-	//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
-
-	//LEGE DEN NEUEN BLOCK ALS NACHFOLGER VOM ALTEN BLOCK FEST
-
-	// PASSE DIE LAENGE VOM ALTEN BLOCK AN
-
-
+	if((block->dataLength-byteCount) > memoryBlockHeaderSize){
+		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
+		memoryBlock* newBlock = (memoryBlock*)(block->data+block->dataLength+1);
+		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;
+		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
+		newBlock->state				= not_allocated;
+		newBlock->nextBlock		= block->nextBlock;
+		//LEGE DEN NEUEN BLOCK ALS NACHFOLGER VOM ALTEN BLOCK FEST
+		block->nextBlock = newBlock;
+		// PASSE DIE LAENGE VOM ALTEN BLOCK AN
+		block->dataLength = byteCount;
+	}
 }
 
 

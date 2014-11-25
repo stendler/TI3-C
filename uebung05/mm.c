@@ -92,7 +92,6 @@ void* my_malloc(int byteCount)
 	//SUCHE NACH EINEM GEEIGNETEN FREIEN SPEICHERBLOCK, MIT MEHR ALS <byteCount>
 	//VIELEN BYTES
 	//
-	memoryBlock *block = head;
 	memoryBlock *return_blockData = NULL;
 	while(block != NULL)
 	{
@@ -165,14 +164,25 @@ void my_free(void* p)
 	{
 		return;
 	}
-	//TODO
+	//TODO - WIP
 	// SUCHE NACH DEM BLOCK MIT ZEIGER <p>
-
+	memoryBlock *block = head;
+	while (block != NULL){
+		if(block->data == p){
+			break;
+		}else{
+			block = block->nextBlock;
+		}
+	}
 	// FALLS KEINER GEFUNDEN WURDE, GEBE EINE MELDUNG AUS.
-
+	if(block == NULL){
+		printf("Given pointer is no memory block");
+		return -1;
+	}
 	//FREIGEBEN VON DEM ENTSPRECHENDEN SPEICHERBLOCK
-
+	block->state = not_allocated;
 	//FREIE SPEICHERBLOECKE MITEINANDER VERSCHMELZEN
+	mergeFreeBlocks();
 }
 
 //Diese Funktion verschmilzt benachbarte, nicht benutzte Speicherbloecke

@@ -164,7 +164,7 @@ void my_free(void* p)
 	{
 		return;
 	}
-	//TODO - WIP
+	//TODO - WIP - needs testing
 	// SUCHE NACH DEM BLOCK MIT ZEIGER <p>
 	memoryBlock *block = head;
 	while (block != NULL){
@@ -188,15 +188,21 @@ void my_free(void* p)
 //Diese Funktion verschmilzt benachbarte, nicht benutzte Speicherbloecke
 void mergeFreeBlocks()
 {
-	//TODO
+	//TODO - WIP - needs testing
 	// BEGINNE AM ANFANG DER LISTE
-	// WENN DER AKTUELLE UND DER BENACHBARTE BLOCK FREI SIND,
-	// DANN VERSCHMELZE DIESE INDEM DIE DATENLAENGE UND DER NACHFOLGER
-	// VOM AKTUELLEN BLOCK ANGEPASST WERDEN.
-	//IMPLEMENTIEREN
+	memoryBlock* block = head;
+	while(block != NULL){
+		// WENN DER AKTUELLE UND DER BENACHBARTE BLOCK FREI SIND,
+		if((block->state == not_allocated) && (block->nextBlock->state == not_allocated)){
+			// DANN VERSCHMELZE DIESE INDEM DIE DATENLAENGE
+			block->dataLength += (memoryBlockHeaderSize+block->nextBlock->dataLength);
+			// UND DER NACHFOLGER VOM AKTUELLEN BLOCK ANGEPASST WERDEN.
+			block->nextBlock = block->nextBlock->nextBlock;
+		}
+	}
 }
 
-//Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherbl�cke aus
+//Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherbloecke aus
 void status()
 {
 	if(!b_initialized)

@@ -96,7 +96,7 @@ void* my_malloc(int byteCount)
 	while(block != NULL)
 	{
 		if(block->dataLength >= byteCount){
-			if(return_BlockData == NULL){
+			if(return_blockData == NULL){
 				return_blockData = block;
 			}else{
 				if(return_blockData->dataLength > block->dataLength){
@@ -142,7 +142,7 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	//FALLS EIN WEITERER SPEICHERBLOCK IN DEN ALTEN PASST,
 	if((block->dataLength-byteCount) > memoryBlockHeaderSize){
 		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
-		memoryBlock* newBlock = (memoryBlock*)(block->data+block->dataLength+1);
+		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength+1);
 		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;
 		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
 		newBlock->state				= not_allocated;
@@ -152,6 +152,7 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 		// PASSE DIE LAENGE VOM ALTEN BLOCK AN
 		block->dataLength = byteCount;
 	}
+	return block;
 }
 
 
@@ -177,7 +178,7 @@ void my_free(void* p)
 	// FALLS KEINER GEFUNDEN WURDE, GEBE EINE MELDUNG AUS.
 	if(block == NULL){
 		printf("Given pointer is no memory block");
-		return -1;
+		return;
 	}
 	//FREIGEBEN VON DEM ENTSPRECHENDEN SPEICHERBLOCK
 	block->state = not_allocated;
@@ -217,7 +218,7 @@ void status()
 	printf("#  at\t\t allocated\t space\t data\t\t\tnext block\n");
 	while(block != NULL)
 	{
-
+		//TODO: WARNINGS - evtl (void*) pointer casten vor den  memoryBlock pointern?
 		printf("%d  %p\t %s \t\t %d\t [%p,%p]\t%p\n", ++count, block, boolStr[block->state], block->dataLength, (block->data), ((char*)block->data + block->dataLength-1), (block->nextBlock));
 		block = block->nextBlock;
 	}

@@ -46,12 +46,12 @@ void initialize()
 		// Data beginnt somit nicht am Anfang von <memory>.
 
 		b_initialized = 1;
-		//TODO INITIALISIERUNG VON HEAD
-
-		// head->data = head + memoryBlockHeaderSize;
-		// head->dataLength = memorySize - memoryBlockHeaderSize;
-		// head->state = not_allocated;
-		// head->nextBlock = NULL;
+		//TODO - needs testing
+		//INITIALISIERUNG VON HEAD
+		head->data = head + memoryBlockHeaderSize;
+		head->dataLength = memorySize - memoryBlockHeaderSize;
+		head->state = not_allocated;
+		head->nextBlock = NULL;
 	}
 }
 
@@ -88,18 +88,38 @@ void* my_malloc(int byteCount)
 		return(NULL);
 	}
 	memoryBlock *block = head;
-	//TODO
+	//TODO - WIP - seems finished - needs testing
 	//SUCHE NACH EINEM GEEIGNETEN FREIEN SPEICHERBLOCK, MIT MEHR ALS <byteCount>
 	//VIELEN BYTES
 	//
-
+	memoryBlock *block = head;
+	memoryBlock *return_blockData = NULL;
+	while(block != NULL)
+	{
+		if(block->dataLength >= byteCount){
+			if(return_BlockData == NULL){
+				return_blockData = block;
+			}else{
+				if(return_blockData->dataLength > block->dataLength){
+					return_blockData = block;
+				}
+			}
+		}
+		block = block->nextBlock;
+	}
 	// FALLS ES KEIN PASSENDES ELEMENT GIBT, GEBEN WIR NULL ZURUECK.
-
+	if(return_blockData == NULL){
+		return NULL;
+	}
 	// Der Knoten block hat genuegend Speicherplatz
-	//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNOETIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD
+	if(return_blockData->dataLength > (byteCount+memoryBlockHeaderSize)){
+		//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNOETIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD#
+		splitBlock(return_blockData,byteCount);
+	}
 	// UND MARKIERE DIESEN BLOCK
-	//
+	return_blockData->state = allocated;
 	//RueCKGABE DES ZEIGERS AUF DEN ZU BENUTZENDEN SPEICHERBEREICH
+	return return_blockData->data;
 }
 
 //Sofern moeglich teilt die Funktion splitBlock einen Block in 2 Bloecke,

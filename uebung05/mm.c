@@ -164,16 +164,16 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	if(newBlock_size > 0){
 		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
 		//DEBUG
-		printf("new block - ");
-		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength)+1;
+		printf("new block\n");
+		memoryBlock* newBlock = ((memoryBlock*)(block->data)+byteCount)+1;
 		//DEBUG
-		printf("pointer on data - ");
+		printf("pointer on data\n");
 		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;
 		//DEBUG
-		printf("dataLength - ");
+		printf("dataLength\n");
 		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
 		//DEBUG
-		printf("state - ");
+		printf("state\n");
 		newBlock->state				= not_allocated;
 		//DEBUG
 		printf("nextBlock pointer\n");

@@ -36,6 +36,9 @@ void initialize()
 {
 	if(!b_initialized)
 	{
+		//DEBUG
+		printf("Initializing..\n");
+
 		head = (memoryBlock*)memory;
 		//Initialisiere head in unserem Speicher <memory>
 		//Unser gesamter Speicher <memory> soll als ein memoryBlock interpretiert werden
@@ -52,6 +55,9 @@ void initialize()
 		head->dataLength = memorySize - memoryBlockHeaderSize;
 		head->state = not_allocated;
 		head->nextBlock = NULL;
+
+		//DEBUG
+		printf("Initialized!");
 	}
 }
 
@@ -60,6 +66,8 @@ int get_free_space()
 {
 	if(!b_initialized)
 		return -1;
+	//DEBUG
+	printf("Start to look for free space..\n");
 	int count = 0;
 	memoryBlock *block = head;
 	while(block != NULL)
@@ -70,6 +78,8 @@ int get_free_space()
 		}
 		block = block->nextBlock;
 	}
+	//DEBUG
+	printf("%d free space found!\n",count);
 	return(count);
 }
 
@@ -81,6 +91,8 @@ void* my_malloc(int byteCount)
 	{
 		initialize();
 	}
+	//DEBUG
+	printf("mAllocating..\n");
 	//Wenn der insgesamt verfuegbare Speicherplatz kleiner ist
 	//als der angeforderte, koennen wir gleich aufhoeren!
 	if(byteCount > get_free_space())
@@ -117,6 +129,8 @@ void* my_malloc(int byteCount)
 	}
 	// UND MARKIERE DIESEN BLOCK
 	return_blockData->state = allocated;
+	//DEBUG
+	printf("mAllocated!\n");
 	//RueCKGABE DES ZEIGERS AUF DEN ZU BENUTZENDEN SPEICHERBEREICH
 	return return_blockData->data;
 }
@@ -132,7 +146,8 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 
 	//TODO - WIP - needs testing
 	//IMPLEMENTIEREN
-
+	//DEBUG
+	printf("splitting block.. \n");
 	//BERECHNE DIE GROESSE DES NEUEN UND ALTEN BLOCKS
 	//current Block size: block->dataLength
 	//needed Block size: byteCount
@@ -142,16 +157,30 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	//FALLS EIN WEITERER SPEICHERBLOCK IN DEN ALTEN PASST,
 	if((block->dataLength-byteCount) > memoryBlockHeaderSize){
 		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
-		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength+1);
+		//DEBUG
+		printf("new block - ");
+		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength)++;
+		//DEBUG
+		printf("pointer on data - ");
 		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;
+		//DEBUG
+		printf("dataLength - ");
 		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
+		//DEBUG
+		printf("state - ");
 		newBlock->state				= not_allocated;
+		//DEBUG
+		printf("nextBlock pointer\n");
 		newBlock->nextBlock		= block->nextBlock;
 		//LEGE DEN NEUEN BLOCK ALS NACHFOLGER VOM ALTEN BLOCK FEST
+		//DEBUG
+		printf("prev nexB = newB\n");
 		block->nextBlock = newBlock;
 		// PASSE DIE LAENGE VOM ALTEN BLOCK AN
 		block->dataLength = byteCount;
 	}
+	//DEBUG
+	printf("block splitted\n");
 	return block;
 }
 
@@ -166,6 +195,8 @@ void my_free(void* p)
 		return;
 	}
 	//TODO - WIP - needs testing
+	//DEBUG
+	printf("mfree: look for pointer..\n");
 	// SUCHE NACH DEM BLOCK MIT ZEIGER <p>
 	memoryBlock *block = head;
 	while (block != NULL){
@@ -177,7 +208,7 @@ void my_free(void* p)
 	}
 	// FALLS KEINER GEFUNDEN WURDE, GEBE EINE MELDUNG AUS.
 	if(block == NULL){
-		printf("Given pointer is no memory block");
+		printf("free: error: Given pointer is no memory block\n");
 		return;
 	}
 	//FREIGEBEN VON DEM ENTSPRECHENDEN SPEICHERBLOCK
@@ -190,6 +221,8 @@ void my_free(void* p)
 void mergeFreeBlocks()
 {
 	//TODO - WIP - needs testing
+	//DEBUG
+	printf("merging free blocks..\n");
 	// BEGINNE AM ANFANG DER LISTE
 	memoryBlock* block = head;
 	while(block != NULL){
@@ -201,6 +234,8 @@ void mergeFreeBlocks()
 			block->nextBlock = block->nextBlock->nextBlock;
 		}
 	}
+	//DEBUG
+	printf("blocks merged\n");
 }
 
 //Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherbloecke aus

@@ -123,7 +123,7 @@ void* my_malloc(int byteCount)
 		return NULL;
 	}
 	// Der Knoten block hat genuegend Speicherplatz
-	if(return_blockData->dataLength > (byteCount+memoryBlockHeaderSize)){
+	if((return_blockData->dataLength) > (byteCount+memoryBlockHeaderSize)){
 		//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNOETIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD#
 		splitBlock(return_blockData,byteCount);
 	}
@@ -147,19 +147,25 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	//TODO - WIP - needs testing
 	//IMPLEMENTIEREN
 	//DEBUG
-	printf("splitting block.. \n");
+	printf("splitting block..\n");
 	//BERECHNE DIE GROESSE DES NEUEN UND ALTEN BLOCKS
-	//current Block size: block->dataLength
-	//needed Block size: byteCount
-	//new block size: dataLength-byteCount
-	//new block size needs to be > memoryBlockHeaderSize
-
+	//-current Block size: block->dataLength
+	//-needed Block size: byteCount
+	//-new block size: block->dataLength-byteCount
+	int newBlock_size = block->dataLength-byteCount-memoryBlockHeaderSize;
+	//DEGUG
+	printf("newBlock size: %d\n",newBlock_size);
+	//-new block size needs to be > memoryBlockHeaderSize
 	//FALLS EIN WEITERER SPEICHERBLOCK IN DEN ALTEN PASST,
-	if((block->dataLength-byteCount) > memoryBlockHeaderSize){
+	//DEBUG
+	printf("if %d > %d + %d \n",(int)(block->dataLength),(int)byteCount,(int)memoryBlockHeaderSize);
+	//if((block->dataLength-byteCount) > memoryBlockHeaderSize){
+	//if((int)(block->dataLength) > ((int)byteCount+(int)memoryBlockHeaderSize)){
+	if(newBlock_size > 0){
 		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
 		//DEBUG
 		printf("new block - ");
-		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength)++;
+		memoryBlock* newBlock = ((memoryBlock*)(block->data)+block->dataLength)+1;
 		//DEBUG
 		printf("pointer on data - ");
 		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;

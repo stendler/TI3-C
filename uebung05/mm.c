@@ -1,9 +1,19 @@
+//TI3 - Uebung 05
+//Tutor: Thomas
+//Bearbeiter: Jasmine Cavael und Maximilian Stendler
+
 #include "mm.h"
 #include <stdio.h>
 
 //Groesse des Speichers, den die Speicherverwaltung verwalten soll
 #define memorySize 10240
 
+//TODO FIX ERRORS
+// MAYBE CAST VOID BEFORE MOVING POINTER?
+//Unterschied zwischen:
+// - pointer p = (void*)								(block->data)+block->dataLength+1;
+// - pointer p = (some fitting type cast)block->data[block->dataLength+1];
+//nope ist gleich
 //Zustand von einem Speicherblock
 enum memBlockState{not_allocated=0, allocated=1};
 //zur spaeteren Ausgabe..
@@ -92,7 +102,7 @@ void* my_malloc(int byteCount)
 		initialize();
 	}
 	//DEBUG
-	printf("mAllocating..\n");
+	printf("mAllocating..%d\n",byteCount);
 	//Wenn der insgesamt verfuegbare Speicherplatz kleiner ist
 	//als der angeforderte, koennen wir gleich aufhoeren!
 	if(byteCount > get_free_space())
@@ -103,16 +113,18 @@ void* my_malloc(int byteCount)
 	//TODO - WIP - seems finished - needs testing
 	//SUCHE NACH EINEM GEEIGNETEN FREIEN SPEICHERBLOCK, MIT MEHR ALS <byteCount>
 	//VIELEN BYTES
-	//
+	// + memoryBlockHeaderSize ? nvm .. bei einer anforderung die die gesamte blockgroesse benoetigt muss kein header fuer einen splitBlock beruecksichtigt werden
 	memoryBlock *return_blockData = NULL;
 	while(block != NULL)
 	{
-		if(block->dataLength >= byteCount){
-			if(return_blockData == NULL){
-				return_blockData = block;
-			}else{
-				if(return_blockData->dataLength > block->dataLength){
+		if(block->state == not_allocated){
+			if(block->dataLength >= byteCount){
+				if(return_blockData == NULL){
 					return_blockData = block;
+				}else{
+					if(return_blockData->dataLength > block->dataLength){
+						return_blockData = block;
+					}
 				}
 			}
 		}
@@ -123,10 +135,15 @@ void* my_malloc(int byteCount)
 		return NULL;
 	}
 	// Der Knoten block hat genuegend Speicherplatz
-	if((return_blockData->dataLength) > (byteCount+memoryBlockHeaderSize)){
+	//if((return_blockData->dataLength) >= (byteCount+memoryBlockHeaderSize)){
 		//UNTERTEILUNG DIESES BLOCKS, SO DASS NICHT UNNOETIG VIEL SPEICHERPLATZ VERBRAUCHT WIRD#
 		splitBlock(return_blockData,byteCount);
-	}
+	//}else{
+		//ERROR
+		//printf("Nicht genug Platz fuer Speicher %d UND header %d in %d",byteCount,memoryBlockHeaderSize,return_blockData->dataLength);
+
+		//return NULL;
+	//}
 	// UND MARKIERE DIESEN BLOCK
 	return_blockData->state = allocated;
 	//DEBUG
@@ -164,13 +181,14 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 	if(newBlock_size > 0){
 		//ERZEUGEN WIR EINEN NEUEN BLOCK, AENHLICH ZU HEAD AM ANFANG
 		//DEBUG
-		printf("new block\n");
-		memoryBlock* newBlock = ((memoryBlock*)(block->data)+byteCount)+1;
+		printf("new block - %p\n",((memoryBlock*)(block->data)+byteCount+1));
+		printf("new block - %p\n",(memoryBlock*)(block->data+byteCount+1));
+		memoryBlock* newBlock = (memoryBlock*)(block->data+byteCount+1);
 		//DEBUG
-		printf("pointer on data\n");
-		newBlock->data 			 	= newBlock + memoryBlockHeaderSize;
+		printf("pointer on data - %p \n",newBlock + memoryBlockHeaderSize);
+		newBlock->data 			 	= (void*)((void*)newBlock + memoryBlockHeaderSize);
 		//DEBUG
-		printf("dataLength\n");
+		printf("dataLength - %d\n",block->dataLength-byteCount-memoryBlockHeaderSize);
 		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
 		//DEBUG
 		printf("state\n");
@@ -184,9 +202,15 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 		block->nextBlock = newBlock;
 		// PASSE DIE LAENGE VOM ALTEN BLOCK AN
 		block->dataLength = byteCount;
+
+		//DEBUG
+		printf("block splitted\n");
+	}else{
+		//kein split noetig, wenn kein speicher,da
+
+		//DEBUG
+		printf("no split possible\n");
 	}
-	//DEBUG
-	printf("block splitted\n");
 	return block;
 }
 
@@ -231,17 +255,23 @@ void mergeFreeBlocks()
 	printf("merging free blocks..\n");
 	// BEGINNE AM ANFANG DER LISTE
 	memoryBlock* block = head;
-	while(block != NULL){
+	while(block != NULL && block->nextBlock != NULL){
 		// WENN DER AKTUELLE UND DER BENACHBARTE BLOCK FREI SIND,
 		if((block->state == not_allocated) && (block->nextBlock->state == not_allocated)){
+			//DEBUG
+			printf("block to merge found\n");
 			// DANN VERSCHMELZE DIESE INDEM DIE DATENLAENGE
 			block->dataLength += (memoryBlockHeaderSize+block->nextBlock->dataLength);
 			// UND DER NACHFOLGER VOM AKTUELLEN BLOCK ANGEPASST WERDEN.
 			block->nextBlock = block->nextBlock->nextBlock;
+			//DEBUG
+			printf("blocks merged\n");
+		}else{
+			block = block->nextBlock;
 		}
 	}
 	//DEBUG
-	printf("blocks merged\n");
+	printf("finished merging\n");
 }
 
 //Diese Funktion gibt eine Uebersicht ueber die vorhandenen Speicherbloecke aus

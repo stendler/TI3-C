@@ -177,10 +177,10 @@ memoryBlock* splitBlock(memoryBlock* block, int byteCount)
 		//DEBUG
 		//printf("new block - %p\n",((memoryBlock*)(block->data)+byteCount+1));
 		//printf("new block - %p\n",(memoryBlock*)(block->data+byteCount+1));
-		memoryBlock* newBlock = (memoryBlock*)(block->data+byteCount+1);
+		memoryBlock* newBlock = (memoryBlock*)((char*)(block->data)+byteCount+1);
 		//DEBUG
 		//printf("pointer on data - %p \n",newBlock + memoryBlockHeaderSize);
-		newBlock->data 			 	= (void*)((void*)newBlock + memoryBlockHeaderSize);
+		newBlock->data 			 	= (void*)((char*)newBlock + memoryBlockHeaderSize);
 		//DEBUG
 		//printf("dataLength - %d\n",block->dataLength-byteCount-memoryBlockHeaderSize);
 		newBlock->dataLength	= block->dataLength-byteCount-memoryBlockHeaderSize;
@@ -283,8 +283,8 @@ void status()
 	printf("#  at\t\t allocated\t space\t data\t\t\tnext block\n");
 	while(block != NULL)
 	{
-		//TODO: WARNINGS - evtl (void*) pointer casten vor den  memoryBlock pointern?
-		printf("%d  %p\t %s \t\t %d\t [%p,%p]\t%p\n", ++count, block, boolStr[block->state], block->dataLength, (block->data), ((char*)block->data + block->dataLength-1), (block->nextBlock));
+		//TODO: WARNINGS - evtl (void*) pointer casten vor den  memoryBlock pointern? Wer auch immer das Framework erstellt hat, hat wohl ein paar Warnings ignoriert...
+		printf("%d  %p\t %s \t\t %d\t [%p,%p]\t%p\n", ++count, /*added cast*/(void*)block, boolStr[block->state], block->dataLength, (block->data), (char*)block->data + block->dataLength-1, /*added void cast*/(void*)(block->nextBlock));
 		block = block->nextBlock;
 	}
 	printf("\n\n");

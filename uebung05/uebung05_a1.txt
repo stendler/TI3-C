@@ -1,0 +1,34 @@
+
+a) 384,640,512,2048
+First-Fit
+1024,512,2048 + 384
+640,512,2048 + 640
+512,2048 + 512
+2048 + 2048
+-
+
+Rotation-Fit (Frage: wo sollen wir anfangen? Am anfang oder an dem letzten belegten speicher?)
+1024,512,2048 + 384
+640,512,2048 + 640
+512,2048 + 512
+2048 + 2048
+-
+
+Best-Fit
+1024,512,2048 + 384
+1024,128,2048 + 640
+384,128,2048 + 512
+384,128,1536 + 2048
+384,128,1536  SPEICHER VOLL!
+
+b)
+
+(1) Länge in Speicherworten: 365+70+120+515+150 = 1220
+(2)
+Kleinste physikalische Adresse: 400
+Größte physikalische Adresse: 1410+365 = 1775
+(3) s: Segmentnummer, d: Offset
+i. 762: s = 3, d = 132
+ii. 1145: s = 4, d = 0
+iii. 1146: s = 4, d = 1
+iv. 485: s = 1, d = 85 → Offset größer als Länge (70), daher ungültige Adresse!

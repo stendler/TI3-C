@@ -1,3 +1,7 @@
+//TI3 - Uebung 06
+//Tutor: Thomas
+//Bearbeiter: Jasmine Cavael und Maximilian Stendler
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

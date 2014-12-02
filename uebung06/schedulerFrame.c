@@ -244,6 +244,9 @@ LINK fcfs(LINK head,LINK current,int tStep)
 /*TODO: Implementieren Sie den First Come First Serve Algorithmus
 		Beachten Sie den Rueckgabewert der deleteProcess Methode
 */
+  if(current->sTime <= 0){
+    current = deleteProcess(current);
+  }
 
  return current;
 }

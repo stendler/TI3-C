@@ -264,7 +264,12 @@ LINK spn(LINK head,LINK current,int tStep)
 /*TODO: Implementieren Sie die Shortest Job Next Algorithmus
 		Nutzen Sie die untere Hilfsfunktion!
 */
-
+  //ueberpruefen, ob der Prozess fertig ist
+  if(current->sTime <= 0){
+    deleteProcess(current);
+    //nach dem naechsten kuerzesten Prozess gucken
+    current = findShortestPr(head);
+  }
 
  return current;
 }

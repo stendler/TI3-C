@@ -1,0 +1,25 @@
+//TI3 - Uebung 05
+//Tutor: Thomas
+//Bearbeiter: Jasmine Cavael und Maximilian Stendler
+
+Aufgabe 2:
+
+
+(a) In einem hierarchischen Dateisystem werde freier Festplattenplatz in einer Liste verwaltet.
+
+(1) Der Zeiger auf die Freispeicherliste sei verloren gegangen. Kann das System die Frei-
+speicherliste wiederherstellen und wenn ja, wie?
+
+- Wenn das System eine weitere Liste mit dem belegten Fetplattenplatz geführt wird, dann ist das durchaus möglich, indem quasi die Invertierung dieser verwendet wird. Also jeglicher Speicher, der _nicht_ in der Liste des belegten Speichers vorkommt, muss frei sein. Daraus ließe sich die Liste des freien Speichers wieder rekonstruieren.
+(nur doof sollte das System beide Listen verlieren...)
+
+(2) Schlagen Sie ein Verfahren vor, bei dem der Zeiger nicht aufgrund eines einzigen Spei-
+cherfehlers verloren gehen kann.
+
+Dies sollte machbar sein, wenn mehrere solcher Listen redundant gespeichert werden (vlg Raid) bzw. wenn die der Zeiger redundant gespeichert wird.
+
+(b) Bei dieser Aufgaben geht es um das FAT16 Dateisystem.
+
+(1) Beschreiben Sie kurz das FAT16 Dateisystem.
+
+TODO!

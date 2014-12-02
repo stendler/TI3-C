@@ -226,6 +226,11 @@ LINK roundRobin(LINK head,LINK current,int tStep)
 		Unterscheiden Sie die Faelle, falls der Prozess fertig ist
 		oder eben noch nicht.
 */
+  //nachgucken, ob der Prozess fertig ist und falls ja loeschen
+  if(current->sTime<=0){
+    deleteProcess(current);
+  }
+  current = current->next;
 
  return current;
 }

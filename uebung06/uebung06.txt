@@ -1,0 +1,80 @@
+Übung 6
+
+a)
+
+K1, K2 , K3
+
+6, 15, 23, 10, 3, 13, 15, 7, 20, 40, 19, 4, 6, 21
+
+6,15,23
+16,15,23
+16,18,23
+29,18,23
+29,33,23
+29,33,30
+49,33,30
+49,33,70
+49,52,70
+53,52,70
+53,58,70
+74,58,70
+
+K1: 6,10,13,20,4,21
+K2: 15,3,15,19,6
+K3: 23,7,40
+
+//einzelne Wartezeiten für die Kunden
+K1 - 0,6,16,29,49,53
+K2 - 0,15,18,33,52
+K3 - 0,23,30
+//addiert
+0+6+16+29+49+53+0+15+18+33+52+0+23+30 = 324
+//geteilt durch Anzahl der Kunden:
+324/14 = 23,142857143 ==> gerundet 24
+
+b)
+6,15,23
+16,15,23
+16,18,23
+16,31,23
+16,31,38
+23,31,38
+23,51,38
+23,51,78
+23,70,78
+27,70,78
+33,70,78
+33,91,78
+K1: 6,10,7,4,6
+K2: 15,3,13,20,19,21
+K3: 23,15,40
+
+//mittlere Wartezeiten
+K1: 0,6,16,23,27
+K2: 15,18,31,51,70
+K3: 23,38
+
+6+16+23+27+15+18+31+51+70+23+38 = 318
+
+318/14 = 22,714285714 ==> gerundet 23
+
+- Erinnert an die Strategie Shortest Process Next (SPN)
+
+- Bei wenigen Kunden mit wenigen Artikeln ist die Kasse 1 bei der Regelung unausgelastet.
+- Bei vielen Kunden mit vielen Artikeln müssen diese sehr lange warten.
+
+
+c)
+K1: 23,20,21
+K2: 6,10,13,7,19,4,6
+K3: 15,3,15,40
+
+K1: 23-43-64
+K2: 6-16-29-36-55-59-65
+K3: 15-18-33-73
+
+23+43+6+16+29+36+55+59+15+18+33 = 333
+
+333/14 = 23,785714286 gerundet 24
+
+- Diese Regelung ist im Durchschnitt sogar schlechter als die vorherigen. Also wird der Supermarktleiter auch diese Regelung verwerfen und sich entweder eine neue ausdenken, um uns zu beschäftigen oder sich erhängen.

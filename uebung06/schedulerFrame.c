@@ -2,6 +2,10 @@
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael und Maximilian Stendler
 
+//manuell
+#define _BSD_SOURCE
+
+//includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +32,7 @@ implementieren Sie die Methoden anschliessend.
 #define PMAX 4 //Anzahl der Prozesse
 #define TINT 500000 //Zeitintervall zwischen den Schritten des Algorithmus in Mikrosekunden
 #define PDOTS 2//Anzahl der Punkte fuer die Anzeige eines Intervalls
+
 
 struct pData //Daten der verketteten Liste
 {

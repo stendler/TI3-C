@@ -16,7 +16,7 @@ speicherliste wiederherstellen und wenn ja, wie?
 (2) Schlagen Sie ein Verfahren vor, bei dem der Zeiger nicht aufgrund eines einzigen Spei-
 cherfehlers verloren gehen kann.
 
-Dies sollte machbar sein, wenn mehrere solcher Listen redundant gespeichert werden (vlg Raid) bzw. wenn die der Zeiger redundant gespeichert wird.
+Dies sollte machbar sein, wenn mehrere solcher Listen redundant gespeichert werden (vgl Raid) bzw. wenn der Zeiger redundant gespeichert wird.
 
 (b) Bei dieser Aufgaben geht es um das FAT16 Dateisystem.
 

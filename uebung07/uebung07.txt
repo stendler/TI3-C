@@ -23,3 +23,5 @@ Dies sollte machbar sein, wenn mehrere solcher Listen redundant gespeichert werd
 (1) Beschreiben Sie kurz das FAT16 Dateisystem.
 
 TODO!
+
+programmieraufgabe: fgets fwrite fgetc verwenden etc

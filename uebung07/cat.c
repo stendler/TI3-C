@@ -11,25 +11,45 @@ den Inhalt dieser Datei ausgibt.
 
 int main(int argc, char *argv[]){
   //Anzahl der Parameter ueberpruefen
-  char* inputfile = "";
+  char* inputfile;
   if(argc > 1){ //Parameter wurde direkt uebergeben
+    //DEBUG
+    printf("Parameter gefunden\n");
+    fflush(stdin);
+
+
     inputfile = argv[1];
   }else{ //ueberpruefen, ob dateiname evtl in stdin?
-    fread(inputfile,128,1,stdin);
+    //DEBUG
+    //printf("suche in stdin\n");
+    //fflush(stdin);
+
+    fgets(inputfile,sizeof(inputfile),stdin);
   }
   //datei oeffnen
+
+  //DEBUG
+  printf("Datei oeffnen\n");
+  fflush(stdin);
+
   void* filestream = fopen(inputfile,"r");
   //ueberpruefen, ob valide
   if(filestream){
     //datei blockweise einlesen
-    //char* buffer[1024];
-    while(fread(stdout,1024,1,filestream)){
+    //DEBUG
+    printf("einlesen\n");
+    fflush(stdin);
+
+    char buffer[1024];
+    while(fgets(buffer,sizeof(buffer),filestream)){
     //datei blockweise in stdout schreiben
-      //fwrite(stdout,1024,1,buffer);
+      //fwrite(stdout,1024,1,&buffer);
+      fputs(buffer,stdout);
     }
+    //statt blockweise zeilenweise?
   }else{
     //or error - stderr
-    fwrite("File not found.",128,1,stderr);
+    fwrite("File not found.\n",128,1,stderr);
   }
   fclose(filestream);
 }

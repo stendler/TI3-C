@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
   if(filestream){
     //datei blockweise einlesen
     char buffer[1024];
-    char chr = ' ';
+    //char chr = ' ';
     int c = 0;
     int w = 0;
     int l = 0;
@@ -41,8 +41,20 @@ int main(int argc, char *argv[]){
           w++;  //fuer jedes leerzeichen wort zaehler incr
         }
       }*/
+      for(int i=0; i<sizeof(buffer);i++){
+        if(buffer[i]==0 || buffer[i]==127){
+          break;
+        }
+        c++;
+        if(buffer[i]==32){
+          w++;
+        }
+      }
     }
-    fseek(filestream,0,SEEK_SET);
+    if(l>0){
+      w++;
+    }
+    /*fseek(filestream,0,SEEK_SET);
     while( (chr=getc(filestream)) != EOF){
       c++;  //fuer jedes zeichen byte zaehler incr fgetc
       printf("%c",chr);
@@ -52,7 +64,7 @@ int main(int argc, char *argv[]){
         fflush(stdin);
         w++;  //fuer jedes leerzeichen wort zaehler incr
       }
-    }
+    }*/
     //fseek(filestream,0,SEEK_SET);
     //while(ftell(filestream)!=)
     printf("Zeilen: %i, Worte: %i, Bytes: %i\n",l,w,c);

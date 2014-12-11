@@ -11,14 +11,18 @@ die Anzahl der Zeilen, Worten und Bytes dieser Datei ausgibt.
 
 int main(int argc, char *argv[]){
   //Anzahl der Parameter ueberpruefen
-  char* inputfile = "";
+  //char* inputfile = "";
+  void* filestream;
   if(argc > 1){ //Parameter wurde direkt uebergeben
-    inputfile = argv[1];
-  }else{ //ueberpruefen, ob dateiname evtl in stdin?
-    fread(inputfile,128,1,stdin);
+    filestream = fopen(argv[1],"r");
+  }else{ //ueberpruefen, ob dateiname evtl in stdin?  //TODO: Soll denn ueberhaupt der Dateiname hierdrin sein? Oder bereits die ganze Datei?
+    char inputfile[128] = "";
+    fgets(inputfile,sizeof(inputfile),stdin);
+    printf("%s\n",inputfile);
+    filestream = fopen(inputfile,"r");
   }
   //datei oeffnen
-  void* filestream = fopen(inputfile,"r");
+
   //ueberpruefen, ob valide
   if(filestream){
     //datei blockweise einlesen
@@ -55,7 +59,7 @@ int main(int argc, char *argv[]){
         //am ende der datei -> Zaehler ausgeben
   }else{
     //error- stderr
-    fwrite("File not found.",128,1,stderr);
+    fputs("File not found.",stderr);
   }
   fclose(filestream);
 }

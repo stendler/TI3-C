@@ -11,34 +11,35 @@ den Inhalt dieser Datei ausgibt.
 
 int main(int argc, char *argv[]){
   //Anzahl der Parameter ueberpruefen
-  char* inputfile;
+  //char *inputfile;
+  //inputfile = "";
+  void* filestream;
   if(argc > 1){ //Parameter wurde direkt uebergeben
     //DEBUG
-    printf("Parameter gefunden\n");
-    fflush(stdin);
-
-
-    inputfile = argv[1];
+    //printf("Parameter gefunden\n");
+    //fflush(stdin);
+    //inputfile = argv[1];
+    filestream = fopen(argv[1],"r");
   }else{ //ueberpruefen, ob dateiname evtl in stdin?
     //DEBUG
     //printf("suche in stdin\n");
     //fflush(stdin);
 
-    fgets(inputfile,sizeof(inputfile),stdin);
+    //fgets(inputfile,sizeof(inputfile),stdin); //funktioniert nicht wie erwartet, weil wegen bullshit
+    //DEBUG
+    //printf("%s \n",inputfile);
+    //fflush(stdin);
+    filestream = stdin;
   }
-  //datei oeffnen
-
   //DEBUG
-  printf("Datei oeffnen\n");
-  fflush(stdin);
-
-  void* filestream = fopen(inputfile,"r");
+  //printf("Datei oeffnen\n");
+  //fflush(stdin);
   //ueberpruefen, ob valide
   if(filestream){
     //datei blockweise einlesen
     //DEBUG
-    printf("einlesen\n");
-    fflush(stdin);
+    //printf("einlesen\n");
+    //fflush(stdin);
 
     char buffer[1024];
     while(fgets(buffer,sizeof(buffer),filestream)){

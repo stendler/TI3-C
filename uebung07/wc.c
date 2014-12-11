@@ -16,10 +16,12 @@ int main(int argc, char *argv[]){
   if(argc > 1){ //Parameter wurde direkt uebergeben
     filestream = fopen(argv[1],"r");
   }else{ //ueberpruefen, ob dateiname evtl in stdin?  //TODO: Soll denn ueberhaupt der Dateiname hierdrin sein? Oder bereits die ganze Datei?
-    char inputfile[128] = "";
-    fgets(inputfile,sizeof(inputfile),stdin);
-    printf("%s\n",inputfile);
-    filestream = fopen(inputfile,"r");
+    //char inputfile[128] = "";
+    //fgets(inputfile,sizeof(inputfile),stdin);
+    //printf("%s\n",inputfile);
+    //filestream = fopen(inputfile,"r");
+
+    filestream = stdin;
   }
   //datei oeffnen
 

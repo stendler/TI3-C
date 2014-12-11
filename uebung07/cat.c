@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
     //statt blockweise zeilenweise?
   }else{
     //or error - stderr
-    fwrite("File not found.\n",128,1,stderr);
+    fputs("File not found.",stderr);
   }
   fclose(filestream);
 }

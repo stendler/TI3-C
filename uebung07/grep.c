@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
   }else{
     //parameter in stdin zu finden?
     //else error
-    fwrite("File not found.\n",128,1,stderr);
+    fputs("File not found.",stderr);
   }
     return 0;
-  }
+}

@@ -9,7 +9,7 @@ die Anzahl der Zeilen, Worten und Bytes dieser Datei ausgibt.
 
 #include <stdio.h>
 
-int main(int argc, , char *argv[]){
+int main(int argc, char *argv[]){
   //Anzahl der Parameter ueberpruefen
   char* inputfile = "";
   if(argc > 1){ //Parameter wurde direkt uebergeben
@@ -22,17 +22,37 @@ int main(int argc, , char *argv[]){
   //ueberpruefen, ob valide
   if(filestream){
     //datei blockweise einlesen
-    //char* buffer[1024];
-    while(fread(stdout,1024,1,filestream)){
-      //datei blockweise in stdout schreiben
-      //fwrite(stdout,1024,1,buffer);
+    char buffer[1024];
+    char chr = ' ';
+    int c = 0;
+    int w = 0;
+    int l = 0;
+    while(fgets(buffer,1024,filestream)){
+      l++; //fuer jedes (umm enter oder \0 ??) zeilen zaehler incr fgets
+    /*  while(chr=fgetc(buffer)){
+        c++;  //fuer jedes zeichen byte zaehler incr fgetc
+        if(chr==' '){
+          w++;  //fuer jedes leerzeichen wort zaehler incr
+        }
+      }*/
     }
+    fseek(filestream,0,SEEK_SET);
+    while( (chr=getc(filestream)) != EOF){
+      c++;  //fuer jedes zeichen byte zaehler incr fgetc
+      printf("%c",chr);
+      //fflush(stdin);
+      if(chr==32){
+        printf(" _ %i\n",w);
+        fflush(stdin);
+        w++;  //fuer jedes leerzeichen wort zaehler incr
+      }
+    }
+    //fseek(filestream,0,SEEK_SET);
+    //while(ftell(filestream)!=)
+    printf("Zeilen: %i, Worte: %i, Bytes: %i\n",l,w,c);
+    //fputs(stdout,"Zeilen: %i, Worte: %i, Bytes: %i\n",l,w,c);
     //datei zeichenweise einlesen
-
-    //fuer jedes zeichen byte zaehler incr fgetc
-    //fuer jedes leerzeichen wort zaehler incr
-    //fuer jedes (umm enter oder \0 ??) zeilen zaehler incr fgets
-    //am ende der datei -> Zaehler ausgeben
+        //am ende der datei -> Zaehler ausgeben
   }else{
     //error- stderr
     fwrite("File not found.",128,1,stderr);

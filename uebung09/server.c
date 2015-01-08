@@ -54,6 +54,7 @@ int main(int arc, char *argv[])
       fputs("Bind - check.",stdout);
     }
 
+    //while True ?!
     //Listen
     listen(socket_descriptor,3); // what does the 3?!
     fputs("Listening...",stdout);
@@ -65,9 +66,21 @@ int main(int arc, char *argv[])
       return 4;
     }
     fputs("Connection established.",stdout);
+    //while connected?
+
+    //Receive message
+    int rsize;
+    while(rsize = recv(client_socket,client_message,sizeof(client_message),0)) > 0){
+      //client_message Vergleichen mit weihnachtlichen etc
 
 
+    }
 
+    if(rsize == 0){
+      fputs("Client quit connection.",stdout);
+    }else if(rsize < 0){
+      fputs("Receiving message failed.",stderr);
+    }
 
     return 0; // end of program
   }

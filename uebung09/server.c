@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>	//inet_addr
+#include <unistd.h> //write
 
 //TI3 - Uebung 09
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael und Maximilian Stendler
-// Ver 1.4
+// Ver 1.5
 //main() - creates a tcp/ip4 socket
 int main(int argc, char *argv[])
 {
@@ -15,7 +16,7 @@ int main(int argc, char *argv[])
   if(argc < 2){
     fputs("No Parameter. At least Portnumber needed.",stderr);
     fflush(stdout);
-    return -1;
+    return 1;
   }else{
 
     int port;
@@ -25,6 +26,12 @@ int main(int argc, char *argv[])
 
     //read Parameter
     port = atoi(argv[1]); //string to int?!?!
+    if(port <= 0){
+      perror("Parameter input invalid.");
+      exit(-5);
+    }
+    printf("Port is %i \n",port);
+    fflush(stdout);
 
     //create socket
     socket_descriptor = socket(
@@ -79,7 +86,9 @@ int main(int argc, char *argv[])
     int rsize;
     while(rsize = recv(client_socket,client_message,sizeof(client_message),0) > 0){
       //client_message Vergleichen mit weihnachtlichen etc
-
+      if(strstr(client_message,"jingle bells") != NULL){
+        write(client_socket , "jingle all the way" , strlen("jingle all the way"));
+      }
 
     }
 

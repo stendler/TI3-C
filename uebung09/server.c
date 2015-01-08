@@ -5,7 +5,7 @@
 //TI3 - Uebung 09
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael und Maximilian Stendler
-// Ver 1.2
+// Ver 1.3
 //main() - creates a tcp/ip4 socket
 int main(int arc, char *argv[])
 {
@@ -16,7 +16,7 @@ int main(int arc, char *argv[])
   }else{
 
     int port;
-    int socket_descriptor;
+    int socket_descriptor, client_socket;
     struct sockaddr_in server, client;
     char client_message[2000];
 
@@ -53,8 +53,24 @@ int main(int arc, char *argv[])
     }else{
       fputs("Bind - check.",stdout);
     }
-    
+
+    //Listen
+    listen(socket_descriptor,3); // what does the 3?!
+    fputs("Listening...",stdout);
+
+    //Accept connection
+    int c = sizeof(struct sockaddr_in);
+    if(client_socket = accept(socket_descriptor, (struct sockaddr *)&client,(socklen_t*)&c)){
+      fputs("Failed to accept",stderr);
+      return 4;
+    }
+    fputs("Connection established.",stdout);
+
+
+
 
     return 0; // end of program
   }
 }
+
+//http://www.binarytides.com/server-client-example-c-sockets-linux/

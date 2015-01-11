@@ -65,5 +65,11 @@ int main(int argc, char *argv[])
       fflush(stdout);
     }
 
+    //connect!
+    if(status = connect(socket_descriptor,addr_res->ai_addr,addr_res->ai_addrlen) < 0){
+      fprintf(stderr, "conntect error: %s\n", gai_strerror(status));
+      exit(3);
+    }
+
   }
 }

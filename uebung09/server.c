@@ -78,15 +78,15 @@ int main(int argc, char *argv[])
 
     //while True ?!
     //Listen
-    listen(socket_descriptor,3); // what does the 3?!
+    listen(socket_descriptor,3);
     fputs("Listening...\n",stdout);
     fflush(stdout);
 
     //Accept connection
-    int c = sizeof(struct sockaddr_in);
-    if(client_socket = accept(socket_descriptor, (struct sockaddr *)&client,(socklen_t*)&c)){
+    int addr_size = sizeof(struct sockaddr_in);
+    if(client_socket = accept(socket_descriptor, (struct sockaddr *)&client,(socklen_t*)&addr_size) < 0){
       fputs("Failed to accept",stderr);
-      return 4;
+      exit(4);
     }
     fputs("Connection established.\n",stdout);
     fflush(stdout);

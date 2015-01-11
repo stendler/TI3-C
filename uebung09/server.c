@@ -1,27 +1,28 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>	//inet_addr
+//#include <arpa/inet.h>	//inet_addr
 #include <unistd.h> //write
 
 //TI3 - Uebung 09
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael und Maximilian Stendler
-// Ver 1.5
+// Ver 1.6
 //main() - creates a tcp/ip4 socket
 int main(int argc, char *argv[])
 {
   // 1 Parameter (Portnr.)
   if(argc < 2){
     fputs("No Parameter. At least Portnumber needed.",stderr);
-    fflush(stdout);
     return 1;
   }else{
 
+    int status // used for getaddrinfo to check if an error occured or not if value is other than 0 an error occcured
     int port;
     int socket_descriptor, client_socket;
-    struct sockaddr_in server, client;
+    struct addrinfo server, server_res, client;
     char client_message[2000];
 
     //read Parameter
@@ -33,34 +34,43 @@ int main(int argc, char *argv[])
     printf("Port is %i \n",port);
     fflush(stdout);
 
+    //setup sockaddr addrinfo structure
+    memset(&server, 0 sizeof server);
+
+    server.ai_family = AF_UNSPEC;
+    server.ai_socktype = SOCK_STREAM;     //Type - SOCK_DGRAM - UDP
+    server.ai_flags = AI_PASSIVE;
+  //  server.sin_port = htonl(port);
+
+    //getaddressinfo
+    if(status = getaddrinfo(NULL,argv[1],&server,&server_res) != 0){
+      fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
+      exit(1);
+    }
+
     //create socket
     socket_descriptor = socket(
-      AF_INET,     // Address Family - AF_INET (this is IP version 4) - AF-INET6 IPv6 - AF_UNSPEC
-      SOCK_STREAM, // Type           - SOCK_STREAM (this means connection oriented TCP protocol)
-      0            // Protocol       - 0 [ or IPPROTO_IP This is IP protocol]
+      server_res->ai_family,     // Address Family - AF_INET (this is IP version 4) - AF-INET6 IPv6 - AF_UNSPEC
+      server_res->ai_socktype, // Type           - SOCK_STREAM (this means connection oriented TCP protocol)
+      server_res->ai_protocol            // Protocol       - 0 [ or IPPROTO_IP This is IP protocol]
     );
-    //Type - SOCK_DGRAM - UDP
 
     // check if socket got successfully created
     if(socket_descriptor == -1){
       //failed to create socket
       fputs("Failed to create socket.",stderr);
-      return 2;
+      exit(2);
     }else{
       fputs("Socket created.\n",stdout);
       fflush(stdout);
     }
 
-    //sockaddr_in
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htonl(port);
-
     //Bind
-    if(bind(socket_descriptor,(struct sockaddr *)&server,sizeof(server)) < 0){
+    //if(bind(socket_descriptor,(struct sockaddr *)&server,sizeof(server)) < 0){
+    if(status = bind(socket_descriptor,server_res->ai_addr, server_res->ai_addrlen) < 0){
       fputs("Failed to bind.",stderr);
       //alternative: perror("Failed to bind."); ?!
-      return 3;
+      exit(3);
     }else{
       fputs("Bind - check.\n",stdout);
       fflush(stdout);
@@ -88,8 +98,15 @@ int main(int argc, char *argv[])
       //client_message Vergleichen mit weihnachtlichen etc
       if(strstr(client_message,"jingle bells") != NULL){
         write(client_socket , "jingle all the way" , strlen("jingle all the way"));
+      }else if(strstr(client_message,"rudolph") != NULL){
+        write(client_socket , "The red nosed reindeer" , strlen("The red nosed reindeer"));
+      }else if(strstr(client_message,"we wish you") != NULL){
+        write(client_socket , "we wish you a merry cristmas\n and a happy new year" , strlen("we wish you a merry cristmas\n and a happy new year"));
+      }else if(strstr(client_message,"santa claus is comin") != NULL){
+        write(client_socket , "to toooooown" , strlen("to toooooown"));
+      }else if(strstr(client_message,"last christmas") != NULL){
+        write(client_socket , "i gave you my heart" , strlen("i gave you my heart"));
       }
-
     }
 
     if(rsize == 0){

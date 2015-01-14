@@ -8,6 +8,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>	//inet_addr
 #include <unistd.h> //write
+#include <fcntl.h>
+
+//#define FOLDER "web" falls wir nen unterordner machen wollen oder so
 
 int main(int argc, char *argv[])
 {
@@ -51,7 +54,6 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
 //loop
-  char client_message[2000];
   while(1){ //maybe a close server command? but not yet...
 
 //accept
@@ -70,6 +72,7 @@ int main(int argc, char *argv[])
 //fork? ---- kp - arbeiten wir besser nur einen aufruf zur gleichen zeit ab & das in der endlosschleife
 
 //receive
+    char client_message[2000];
     memset(&client_message,0,sizeof client_message);
     int rsize = recv(client_socket,client_message,sizeof(client_message),0);
     //while(rsize > 0){ // fuer ne einfache anfrage vom browser nicht mehr notwendig
@@ -79,9 +82,96 @@ int main(int argc, char *argv[])
       fputs(client_message,stdout);
       fflush(stdout);
       //testing parse input
-            
+      /*printf("%c %i\n",client_message[0],client_message[0]);
+      printf("%c %i\n",client_message[1],client_message[1]);
+      printf("%c %i\n",client_message[2],client_message[2]);
+      printf("%c %i\n",client_message[3],client_message[3]);
+      printf("%c %i\n",client_message[4],client_message[4]);
+      printf("%c %i\n",client_message[5],client_message[5]);
+      fflush(stdout);*/
 
-// return header + document (if there)
+      char dateiname[128]; // hier wird der geparste dateiname abgelegt
+      memset(&dateiname,0,sizeof dateiname);
+      if((client_message[0] == 71) &&
+         (client_message[1] == 69) &&
+         (client_message[2] == 84) &&
+         (client_message[3] == 32) &&
+         (client_message[4] == 47)
+         ){
+           int index = 5;
+           while(client_message[index] != 32 && index < 133){
+             dateiname[index-5] = client_message[index];
+             index++;
+           }
+           //DEBUG
+           //fputs(dateiname,stdout);
+
+//header geruesst erstellen
+          char header[128];
+          memset(&header,0,sizeof header);
+          strcat (header,"HTTP/1.0 ");
+
+// datei suchen
+           int source = open(dateiname,O_RDONLY);
+           if (source <= 0){
+             printf("\nFile not found.\n\n");
+             strcat(header,"404 Not Found\n");
+           }else{
+             printf("\nFile found!\n\n");
+             strcat(header,"200 OK\n");
+           }
+           fflush(stdout);
+
+  //header content type
+          int type = 0;
+          strcat(header,"Content-Type: ");
+          if(strstr(client_message,"text/html") != NULL){
+            strcat(header,"text/html");
+            type = 0;
+          }else if (strstr(client_message,"image/jpeg")){
+            strcat(header,"image/jpeg");
+            type = 1;
+          }else if (strstr(client_message,"image/gif")){
+            strcat(header,"image/gif");
+            type = 2;
+          }
+          strcat(header,"\nConnection: close\n");
+
+  //header: content length
+          strcat(header,"Content-Length: ");
+          int count,buff = 0;
+          char chrbuffer[1];
+          while((buff = read(source,chrbuffer,1))){
+            count++;
+          }
+          //convert int count to char chrCount
+          char chrCount[100];
+          memset(&chrCount,0,sizeof chrCount);
+          sprintf(chrCount,"%d",count);
+          strcat(header,chrCount);
+          strcat(header,"\n\n");
+
+          //DEBUG
+          printf("%s",header);
+          fflush(stdout);
+
+          //send header?
+
+// return header + document (if there) ummm what about jpeg pictures?
+          if(source <= 0){
+            //content = errormessage 404 not found
+          }else{
+            //wenn type = 0 = text/html:
+            if(type == 0){
+              //filecontent read/write loop
+            }else if(type == 1){
+              //jpeg bytestream
+            }else if(type == 2){
+              //gif bytestream
+            }
+          }
+
+         }
 
 //close connection
     close(client_socket);

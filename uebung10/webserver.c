@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 // socket
   int socket_descriptor = socket(
-    AF_UNSPEC, // Address Family - AF_INET (this is IP version 4) - AF-INET6 IPv6 - AF_UNSPEC
+    AF_INET, // Address Family - AF_INET (this is IP version 4) - AF-INET6 IPv6 - AF_UNSPEC
     SOCK_STREAM, // Type - SOCK_STREAM (this means connection oriented TCP protocol)
     0 // Protocol - 0 [ or IPPROTO_IP This is IP protocol]
   );
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
 // port - bind
   struct sockaddr_in saddr_server;
+  memset(&saddr_server,0,sizeof saddr_server);
   saddr_server.sin_family = AF_INET;
   saddr_server.sin_addr.s_addr = INADDR_ANY;
   saddr_server.sin_port = htons(8080);
@@ -45,17 +46,47 @@ int main(int argc, char *argv[])
   }
 
 // listen
-  listen(socket_descriptor,3);
+  listen(socket_descriptor,10);
+  fputs("Listening...\n",stdout);
+  fflush(stdout);
 
 //loop
-  
-//accept
+  char client_message[2000];
+  while(1){ //maybe a close server command? but not yet...
 
-//fork?
+//accept
+    struct sockaddr_in saddr_client;
+    socklen_t saddr_client_size = sizeof saddr_client;
+    memset(&saddr_client,0,saddr_client_size);
+    int client_socket = accept(socket_descriptor, (struct sockaddr *)&saddr_client,&saddr_client_size);
+    if(client_socket < 0){
+      fputs("Failed to accept\n",stderr);
+      continue;
+    }else{
+      fputs("Connection established.\n",stdout);
+      fflush(stdout);
+    }
+
+//fork? ---- kp - arbeiten wir besser nur einen aufruf zur gleichen zeit ab & das in der endlosschleife
+
+//receive
+    memset(&client_message,0,sizeof client_message);
+    int rsize = recv(client_socket,client_message,sizeof(client_message),0);
+    //while(rsize > 0){ // fuer ne einfache anfrage vom browser nicht mehr notwendig
 
 // parse input header
+      //DEBUG: output der browser anfrage
+      fputs(client_message,stdout);
+      fflush(stdout);
+      //testing parse input
+            
 
 // return header + document (if there)
 
+//close connection
+    close(client_socket);
+    fputs("Connection closed.\n",stdout);
+    fflush(stdout);
 
+  }
 }

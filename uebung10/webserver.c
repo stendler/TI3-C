@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
           FILE *fp = NULL;
           fp = fopen(dateiname,"r");
           char found = 0;
-          printf("file opened\n");
+          //printf("file opened\n");
           if(fp == NULL){
             printf("\nFile not found.\n\n");
             strcat(header,"404 Not Found\n");
@@ -193,6 +193,7 @@ int main(int argc, char *argv[])
           memset(&chrCount,0,sizeof chrCount);
           sprintf(chrCount,"%d",(int)count);
           strcat(header,chrCount);
+          strcat(header,"\n");
           //write test
           write(1,header,strlen(header));
           write(client_socket,header,strlen(header));
@@ -249,10 +250,11 @@ int main(int argc, char *argv[])
             }
           }*/
           //if(found){
-            write(client_socket,"200 File found",strlen("200 File found"));
-            write(1,"200 File found\n \n",strlen("200 File found"));
+            //write(client_socket,"200 File found",strlen("200 File found"));
+            //write(1,"200 File found\n",strlen("200 File found"));
             if(type == 0){
               char buffer[count];
+              memset(&buffer,0,sizeof(buffer));
               buff = 0;
               fseek(fp,0,SEEK_SET);
               while((buff = fread(buffer,sizeof(char),count,fp))){
@@ -262,8 +264,10 @@ int main(int argc, char *argv[])
             }else if(type == 1 || type == 2){
               //jpeg bytestream
               char buffer[count];
+              memset(&buffer,0,sizeof(buffer));
               memcpy(buffer,fp,count);
               printf("%s\n",buffer);
+              fflush(stdout);
               write(client_socket,buffer,sizeof (buffer));
               //write(client_socket,"404 File not found",strlen("404 File not found"));
               //write(1,"404 File not found",strlen("404 File not found"));

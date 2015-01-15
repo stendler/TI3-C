@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
           fflush(stdout);
 
           //send header?
+          write(client_socket,header,strlen(header));
 
 // return header + document (if there) ummm what about jpeg pictures?
           if(source <= 0){
@@ -163,7 +164,21 @@ int main(int argc, char *argv[])
           }else{
             //wenn type = 0 = text/html:
             if(type == 0){
+              //hehe test without loop and BIIIG buffer
+              /*char filebuffer[count];
+              read(source,filebuffer,count);
+              write(client_socket,filebuffer,count);
+              printf("%s",filebuffer);
+              fflush(stdout);*///k maybe a loop is better xD
+
               //filecontent read/write loop
+              char buffer[512];
+              buff = 0;
+              while((buff = read(source,buffer,512))){
+                  write(client_socket,buffer,strlen(buffer));
+                  printf("%s",buffer);
+              }
+
             }else if(type == 1){
               //jpeg bytestream
             }else if(type == 2){

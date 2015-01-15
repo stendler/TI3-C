@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
 //receive
     char client_message[2000];
     memset(&client_message,0,sizeof client_message);
-    int rsize = recv(client_socket,client_message,sizeof(client_message),0);
+  //  int rsize = recv(client_socket,client_message,sizeof(client_message),0);
+    recv(client_socket,client_message,sizeof(client_message),0);
     //while(rsize > 0){ // fuer ne einfache anfrage vom browser nicht mehr notwendig
 
 // parse input header
@@ -107,21 +108,35 @@ int main(int argc, char *argv[])
            //fputs(dateiname,stdout);
 
 //header geruesst erstellen
-          char header[128];
+          char header[512];
           memset(&header,0,sizeof header);
           strcat (header,"HTTP/1.0 ");
 
 // datei suchen
-           int source = open(dateiname,O_RDONLY);
+          /* int source = open(dateiname,O_RDONLY);
            if (source <= 0){
              //printf("\nFile not found.\n\n");
              strcat(header,"404 Not Found\n");
            }else{
             // printf("\nFile found!\n\n");
              strcat(header,"200 OK\n");
-           }
+           }*/
            //write test
-          // int std = open(stdout,O_WRONLY);
+        //  printf("create filepointer\n");
+          FILE *fp = NULL;
+          fp = fopen(dateiname,"r");
+          char found = 0;
+          printf("file opened\n");
+          if(fp == NULL){
+            printf("\nFile not found.\n\n");
+            strcat(header,"404 Not Found\n");
+            fp = fopen("404.html","r");
+          }else{
+            printf("\nFile found!\n\n");
+            strcat(header,"200 OK\n");
+            found = 1;
+          }
+
            write(1,header,strlen(header));
            write(client_socket,header,strlen(header));
            fflush(stdout);
@@ -130,8 +145,8 @@ int main(int argc, char *argv[])
   //header content type
           int type = 0;
           strcat(header,"Content-Type: ");
-          if(strstr(client_message,"text/html") != NULL){
-            strcat(header,"text/html");
+          if(strstr(client_message,"text/html") != NULL || found == 0){
+            strcat(header,"text/html\n");
             //write test
             write(1,header,strlen(header));
             write(client_socket,header,strlen(header));
@@ -139,7 +154,7 @@ int main(int argc, char *argv[])
             memset(&header,0,sizeof header);
             type = 0;
           }else if (strstr(client_message,"image/jpeg")){
-            strcat(header,"image/jpeg");
+            strcat(header,"image/jpeg\n");
             //write test
             write(1,header,strlen(header));
             write(client_socket,header,strlen(header));
@@ -148,7 +163,7 @@ int main(int argc, char *argv[])
 
             type = 1;
           }else if (strstr(client_message,"image/gif")){
-            strcat(header,"image/gif");
+            strcat(header,"image/gif\n");
             //write test
             write(1,header,strlen(header));
             write(client_socket,header,strlen(header));
@@ -157,19 +172,26 @@ int main(int argc, char *argv[])
 
             type = 2;
           }
-          strcat(header,"\nConnection: close\n");
+          memset(&header,0,sizeof header);
+          strcat(header,"Connection: close\n");
+          write(client_socket,header,strlen(header));
+          memset(&header,0,sizeof header);
 
   //header: content length
           strcat(header,"Content-Length: ");
-          int count,buff = 0;
-          char chrbuffer[1];
-          while((buff = read(source,chrbuffer,1))){
-            count++;
+          //int count,buff = 0;
+          char chrbuffer[256];
+        //  while((buff = read(source,chrbuffer,1))){
+        //    count++;
+        //  }
+          size_t count,buff = 0;
+          while((buff = fread(chrbuffer,sizeof(char),256,fp))){
+            count += buff;
           }
           //convert int count to char chrCount
           char chrCount[100];
           memset(&chrCount,0,sizeof chrCount);
-          sprintf(chrCount,"%d",count);
+          sprintf(chrCount,"%d",(int)count);
           strcat(header,chrCount);
           //write test
           write(1,header,strlen(header));
@@ -188,7 +210,7 @@ int main(int argc, char *argv[])
           //write(client_socket,header,strlen(header));
 
 // return header + document (if there) ummm what about jpeg pictures?
-          if(source <= 0){
+        /*  if(source <= 0){
             //content = errormessage 404 not found
             write(client_socket,"404 File not found",strlen("404 File not found"));
             write(1,"404 File not found",strlen("404 File not found"));
@@ -201,12 +223,12 @@ int main(int argc, char *argv[])
             //wenn type = 0 = text/html:
             if(type == 0){
               //hehe test without loop and BIIIG buffer
-              /*char filebuffer[count];
+              char filebuffer[count];
               read(source,filebuffer,count);
               write(client_socket,filebuffer,count);
               printf("%s",filebuffer);
               fflush(stdout);*///k maybe a loop is better xD
-
+/*
               //filecontent read/write loop
               write(1,"\n yo type = 0 lets start read'n'write\n",strlen("\n yo type = 0 lets start read'n'write\n"));
               char buffer[512];
@@ -225,8 +247,33 @@ int main(int argc, char *argv[])
               write(client_socket,"404 File not found",strlen("404 File not found"));
               write(1,"404 File not found",strlen("404 File not found"));
             }
-          }
-
+          }*/
+          //if(found){
+            write(client_socket,"200 File found",strlen("200 File found"));
+            write(1,"200 File found\n \n",strlen("200 File found"));
+            if(type == 0){
+              char buffer[count];
+              buff = 0;
+              fseek(fp,0,SEEK_SET);
+              while((buff = fread(buffer,sizeof(char),count,fp))){
+                  write(client_socket,buffer,strlen(buffer));
+                  write(1,buffer,strlen(buffer));
+              }
+            }else if(type == 1 || type == 2){
+              //jpeg bytestream
+              char buffer[count];
+              memcpy(buffer,fp,count);
+              printf("%s\n",buffer);
+              write(client_socket,buffer,sizeof (buffer));
+              //write(client_socket,"404 File not found",strlen("404 File not found"));
+              //write(1,"404 File not found",strlen("404 File not found"));
+            }/*else if(type == 2){
+              //gif bytestream
+              memcpy(client_socket,fp,count);
+              //write(client_socket,"404 File not found",strlen("404 File not found"));
+              //write(1,"404 File not found",strlen("404 File not found"));
+            }*/
+        //  }
          }
 
 //close connection

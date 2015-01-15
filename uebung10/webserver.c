@@ -145,15 +145,7 @@ int main(int argc, char *argv[])
   //header content type
           int type = 0;
           strcat(header,"Content-Type: ");
-          if(strstr(client_message,"text/html") != NULL || found == 0){
-            strcat(header,"text/html\n");
-            //write test
-            write(1,header,strlen(header));
-            write(client_socket,header,strlen(header));
-            fflush(stdout);
-            memset(&header,0,sizeof header);
-            type = 0;
-          }else if (strstr(client_message,"image/jpeg")){
+          if (strstr(client_message,"image/jpeg") != NULL || strstr(client_message,".jpg")){
             strcat(header,"image/jpeg\n");
             //write test
             write(1,header,strlen(header));
@@ -162,7 +154,7 @@ int main(int argc, char *argv[])
             memset(&header,0,sizeof header);
 
             type = 1;
-          }else if (strstr(client_message,"image/gif")){
+          }else if (strstr(client_message,"image/gif") != NULL){
             strcat(header,"image/gif\n");
             //write test
             write(1,header,strlen(header));
@@ -171,6 +163,14 @@ int main(int argc, char *argv[])
             memset(&header,0,sizeof header);
 
             type = 2;
+          }else if(strstr(client_message,"text/html") != NULL || found == 0){
+            strcat(header,"text/html\n");
+            //write test
+            write(1,header,strlen(header));
+            write(client_socket,header,strlen(header));
+            fflush(stdout);
+            memset(&header,0,sizeof header);
+            type = 0;
           }
           memset(&header,0,sizeof header);
           strcat(header,"Connection: close\n");
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
           //convert int count to char chrCount
           char chrCount[100];
           memset(&chrCount,0,sizeof chrCount);
-          sprintf(chrCount,"%d",(int)count);
+          sprintf(chrCount,"%zu",count);
           strcat(header,chrCount);
           strcat(header,"\n");
           //write test
@@ -252,22 +252,21 @@ int main(int argc, char *argv[])
           //if(found){
             //write(client_socket,"200 File found",strlen("200 File found"));
             //write(1,"200 File found\n",strlen("200 File found"));
-            if(type == 0){
+          //  if(type == 0){
               char buffer[count];
               memset(&buffer,0,sizeof(buffer));
               buff = 0;
               fseek(fp,0,SEEK_SET);
               while((buff = fread(buffer,sizeof(char),count,fp))){
-                  write(client_socket,buffer,strlen(buffer));
-                  write(1,buffer,strlen(buffer));
+                  write(client_socket,buffer,sizeof(buffer));
+                  write(1,buffer,sizeof(buffer));
               }
-            }else if(type == 1 || type == 2){
+      /*      }else if(type == 1 || type == 2){
               //jpeg bytestream
               char buffer[count];
               memset(&buffer,0,sizeof(buffer));
-              memcpy(buffer,fp,count);
-              printf("%s\n",buffer);
-              fflush(stdout);
+              fseek(fp,0,SEEK_SET);
+              memcpy(buffer,fp,count-1);
               write(client_socket,buffer,sizeof (buffer));
               //write(client_socket,"404 File not found",strlen("404 File not found"));
               //write(1,"404 File not found",strlen("404 File not found"));
@@ -277,7 +276,7 @@ int main(int argc, char *argv[])
               //write(client_socket,"404 File not found",strlen("404 File not found"));
               //write(1,"404 File not found",strlen("404 File not found"));
             }*/
-        //  }
+         //}
          }
 
 //close connection
@@ -286,4 +285,5 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
   }
+  close(socket_descriptor);
 }

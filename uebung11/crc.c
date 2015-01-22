@@ -71,7 +71,7 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
 
 void xor(char divident[16],char divisor[16]){
   for(int i = 0; i < 16; i++){
-    if(divident[i] == dividor[i]){
+    if(divident[i] == divisor[i]){
       divident[i] = 1;
     }else{
       divident[i] = 0;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
           }
       }else{
         //DECODE : all except the last 2 bytes
-          char buffer,next,next2;
+          char buffer;
           while ((buffer = fgetc(fp)) != EOF){
             fputc(buffer,outputf);
             remain[0] = fgetc(fp);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
       refillBits(queue,outputf);
 
       //algorithm
-      int decMode = 0;
+      //int decMode = 0;
       while(queue[0] != -1){
         xor(bits,divisor);
         decMode = shiftBits(bits,queue,outputf);
@@ -176,9 +176,13 @@ int main(int argc, char *argv[])
     //    }
       }
 
-      //ENCODE --> add remainder to file
+      if(MODE){
+          //ENCODE --> add remainder to file
+          
+      }else{
+          //DECODE check remainder
 
-      //DECODE check remainder
+      }
 
     }else{
       printf("File not found\n");

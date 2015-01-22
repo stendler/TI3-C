@@ -26,6 +26,8 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
   //bits:   jedes element dieses arrays[16] stellt ein bit dar
   //byte:   byte das in eine bitfolge konvertiert werden soll
   //memset(&bits,0,sizeof(bits));
+  //DEBUG
+  //dbgPrintBits(bits);
   unsigned char helpbyte = byte1;
   unsigned char c = 128;
   //DEBUG
@@ -36,14 +38,14 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
     if(helpbyte >= c){
       //DEBUG
       printf("Byte: %d, C: %d\n",helpbyte,c);
-      helpbyte -= c;
+      helpbyte = helpbyte - c;
       bits[i] = 1;
     }else{
       //DEBUG
-      //printf("bits[%d]: %d",i,bits[i]);
+      printf("bits[%d]\n: %d",i,bits[i]);
       bits[i] = 0;
       //DEBUG
-      //printf("bits[%d]: %d",i,bits[i]);
+      //printf("bits[%d]\n: %d",i,bits[i]);
     }
     if(c == 1){
       //DEBUG
@@ -60,7 +62,7 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
 }
 
 int refillBits(char bits[16], FILE *fp){
-    memset(&bits,0,sizeof(bits));
+    //memset(&bits,0,sizeof(bits));
     //TODO DECODE mode?
     unsigned char next1, next2, next3;
     next1 = (unsigned char)fgetc(fp);
@@ -78,20 +80,40 @@ int refillBits(char bits[16], FILE *fp){
 int shiftBits(char bits[16],char bits2[16],FILE *fp){
   int i,ret = 0;
   //count how many leading zeros bits has
-  while(bits[i] == 0){
+  while(bits[i] != 1){
     i++;
+    //no endless loops plz
+    if(i>1024){
+      printf("dat endless loop-break!\n");
+      break;
+    }
   }
   int shift = i;
   //shift the first 1 to the most left
-  //&& take the rest from bits2
   while(i<16){
     bits[i-shift] = bits[i];
     if(bits2[i-shift] == -1){
       ret = refillBits(bits2,fp);
     }
+    //bits[i] = bits2[i-shift];
+    //set bits2
+    //bits2[i-shift] = -1;
+    i++;
+  }
+  //&& take the rest from bits2
+  i = 16 - shift;
+  while(i<16){
     bits[i] = bits2[i-shift];
-    //shift bits2
-    bits2[i-shift] = -1;
+    i++;
+  }
+  //shift bits2
+  shift = 0;
+  while(bits2[shift] == -1 && shift < 16){
+    shift++;
+  }
+  i = shift;
+  while(i<16){
+    bits2[i-shift] = bits2[i];
     i++;
   }
   //DEBUG
@@ -210,6 +232,13 @@ int main(int argc, char *argv[])
       dbgPrintBits(bits);
       dbgPrintBits(queue);
 
+      shiftBits(bits,queue,outputf);
+      //DEBUG
+      printf("shifted bits: \n");
+      dbgPrintBits(bits);
+      dbgPrintBits(queue);
+
+      return 0;
       //algorithm
       int decMode = 0;
       while(queue[0] != -1){

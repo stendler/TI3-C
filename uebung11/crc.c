@@ -79,6 +79,13 @@ void xor(char divident[16],char divisor[16]){
   }
 }
 
+void dbgPrintBits(char bits[16]){
+  for(int i = 0; i< 16; i++){
+    printf("%d",bits[i]);
+  }
+  printf("\n");
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -90,6 +97,8 @@ int main(int argc, char *argv[])
     divident[1] = 5;*/
     char divisor[16];
     byteToBits(divisor,192,5);
+    //DEBUG
+    dbgPrintBits(divisor);
 
     FILE *fp = fopen(argv[1],"r");
     if(fp != NULL){
@@ -113,6 +122,7 @@ int main(int argc, char *argv[])
         //immer 2 bytes einlesen und durch divident teilen (mod 2) / bzw xor
         MODE = ENCODE;
       }
+      printf("MODE: %d\n\n",MODE);
       //neuer dateiname
       char filename[128];
       memset(filename,0,sizeof filename);
@@ -123,14 +133,16 @@ int main(int argc, char *argv[])
         filename[i] = argv[1][i];
         i++;
       }
-      if(MODE){ //ENCODE
-        filename[i+1] = '.';
-        filename[i+2] = 'c';
-        filename[i+3] = 'r';
-        filename[i+4] = 'c';
+      if(MODE == 1){ //ENCODE
+        filename[i] = '.';
+        filename[i+1] = 'c';
+        filename[i+2] = 'r';
+        filename[i+3] = 'c';
       }else{  //DECODE
-        filename[i+1] = 0;
+        filename[i] = 0;
       }
+      //DEBUG
+      printf("filename %s\n\n",filename);
 
       char remain[2];
       //create file
@@ -167,7 +179,7 @@ int main(int argc, char *argv[])
       refillBits(queue,outputf);
 
       //algorithm
-      //int decMode = 0;
+      int decMode = 0;
       while(queue[0] != -1){
         xor(bits,divisor);
         decMode = shiftBits(bits,queue,outputf);
@@ -178,7 +190,7 @@ int main(int argc, char *argv[])
 
       if(MODE){
           //ENCODE --> add remainder to file
-          
+
       }else{
           //DECODE check remainder
 

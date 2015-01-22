@@ -6,21 +6,23 @@
 #include <stdlib.h>
 #include <fcntl.h>//open + close
 #include <unistd.h> //read+write
+#include <string.h>
 
 #define DECODE 0
 #define ENCODE 1
 
 int MODE;
 
-void byteToBits(char *bits[16], char byte, char byte2){
+void byteToBits(char bits[16], unsigned char byte, unsigned char byte2)
+{
   //bits:   jedes element dieses arrays[16] stellt ein bit dar
   //byte:   byte das in eine bitfolge konvertiert werden soll
-  unsigned char helpbyte = (unsigned char)byte;
-  char c = 128;
+  unsigned char helpbyte = byte;
+  unsigned char c = 128;
   for(int i = 0;i<16;i++){
     if(c == 1){
       c = 128;
-      helpbyte = (unsigned char)byte2;
+      helpbyte = byte2;
     }
     if(helpbyte >= c){
       helpbyte -= c;
@@ -30,12 +32,12 @@ void byteToBits(char *bits[16], char byte, char byte2){
   }
 }
 
-void refillBits(char *bits[16]){
-    memset(&bits,0,sizeof bits);
-    byteToBit(bits,fgetc(fp),fgetc(fp));
+void refillBits(char bits[16], FILE *fp){
+    memset(&bits,0,sizeof(bits));
+    byteToBits(bits,(unsigned char)fgetc(fp),(unsigned char)fgetc(fp));
 }
 
-void fillBits(char *bits[16],char *bits2[16]){
+void shiftBits(char bits[16],char bits2[16],FILE *fp){
   int i = 0;
   //count how many leading zeros bits has
   while(bits[i] == 0){
@@ -47,9 +49,9 @@ void fillBits(char *bits[16],char *bits2[16]){
   while(i<16){
     bits[i-shift] = bits[i];
     if(bits2[i-shift] == -1){
-      //refill
+      refillBits(bits2,fp);
     }
-    bits[i] = bits2[i-shift]
+    bits[i] = bits2[i-shift];
     //shift bits2
     bits2[i-shift] = -1;
     i++;
@@ -61,10 +63,12 @@ int main(int argc, char *argv[])
 {
   if(argc == 2){ //argumente ueberpruefen
     //char mode;
-    unsigned char divident[2]; //CRC16 = x 16 + x 15 + x 2 + 1
+    /*unsigned char divident[2]; //CRC16 = x 16 + x 15 + x 2 + 1
     // 1100 0000  0000 0101
     divident[0] = 192;
-    divident[1] = 5;
+    divident[1] = 5;*/
+    char divident[16];
+    byteToBits(divident,192,5);
 
     FILE *fp = fopen(argv[1],"r");
     if(fp != NULL){
@@ -91,19 +95,28 @@ int main(int argc, char *argv[])
       //neuer dateiname
       char filename[128];
       memset(filename,0,sizeof filename);
-      filename = argv[1];
+
+      //filename = argv[1];
+      int i = 0;
+      while(argv[1][i] != 0 && i < 123){
+        filename[i] = argv[1][i];
+        i++;
+      }
       if(MODE){ //ENCODE
-        filename[len-3] = '.';
-        filename[len-2] = 'c';
-        filename[len-1] = 'r';
-        filename[len] = 'c';
+        filename[i+1] = '.';
+        filename[i+2] = 'c';
+        filename[i+3] = 'r';
+        filename[i+4] = 'c';
       }else{  //DECODE
-        filename[len-3] = 0;
+        filename[i+1] = 0;
       }
       //create file
       FILE *outputf = fopen(filename,"w");
 
       char bits[16], queue[16];
+      refillBits(bits,fp);
+      refillBits(queue,fp);
+
 
     }else{
       printf("File not found\n");

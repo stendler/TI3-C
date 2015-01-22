@@ -121,13 +121,45 @@ int main(int argc, char *argv[])
       }else{  //DECODE
         filename[i+1] = 0;
       }
+
+      char remain[2];
       //create file
       FILE *outputf = fopen(filename,"w");
 
+      //write file
+      if(MODE){
+          //ENCODE : complete
+          char buffer;
+          while((buffer= fgetc(fp)) != EOF){
+            fputc(buffer,outputf);
+          }
+      }else{
+        //DECODE : all except the last 2 bytes
+          char buffer,next,next2;
+          while ((buffer = fgetc(fp)) != EOF){
+            fputc(buffer,outputf);
+            remain[0] = fgetc(fp);
+            remain[1] = fgetc(fp);
+            buffer = fgetc(fp);
+            if(buffer == EOF){
+              break;
+            }else{
+              fseek(fp,-3,SEEK_CUR);
+            }
+          }
+      }
+
+      //TODO fseek
+      
       char bits[16], queue[16];
       refillBits(bits,fp);
       refillBits(queue,fp);
 
+      //algorithm
+
+      //ENCODE --> add remainder to file
+
+      //DECODE check remainder
 
     }else{
       printf("File not found\n");

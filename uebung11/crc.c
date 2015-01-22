@@ -32,13 +32,23 @@ void byteToBits(char bits[16], unsigned char byte, unsigned char byte2)
   }
 }
 
-void refillBits(char bits[16], FILE *fp){
+int refillBits(char bits[16], FILE *fp){
     memset(&bits,0,sizeof(bits));
-    byteToBits(bits,(unsigned char)fgetc(fp),(unsigned char)fgetc(fp));
+    //TODO DECODE mode?
+    unsigned char next1, next2, next3;
+    next1 = (unsigned char)fgetc(fp);
+    next2 = (unsigned char)fgetc(fp);
+    next3 = (unsigned char)fgetc(fp);
+    byteToBits(bits,next1,next2);
+    if(next3 == EOF){
+      return 1;
+    }else{
+      return 0;
+    }
 }
 
 void shiftBits(char bits[16],char bits2[16],FILE *fp){
-  int i = 0;
+  int i,ret = 0;
   //count how many leading zeros bits has
   while(bits[i] == 0){
     i++;
@@ -49,13 +59,14 @@ void shiftBits(char bits[16],char bits2[16],FILE *fp){
   while(i<16){
     bits[i-shift] = bits[i];
     if(bits2[i-shift] == -1){
-      refillBits(bits2,fp);
+      ret = refillBits(bits2,fp);
     }
     bits[i] = bits2[i-shift];
     //shift bits2
     bits2[i-shift] = -1;
     i++;
   }
+  return ret;
 }
 
 

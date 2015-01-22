@@ -31,32 +31,32 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
   unsigned char helpbyte = byte1;
   unsigned char c = 128;
   //DEBUG
-  printf("byteToBits: starting for loop\n");
+  //printf("byteToBits: starting for loop\n");
   for(int i = 0;i<16;i++){
     //DEBUG
-    printf("i = %d , byte: %d, c: %d\n",i,helpbyte,c);
+    //printf("i = %d , byte: %d, c: %d\n",i,helpbyte,c);
     if(helpbyte >= c){
       //DEBUG
-      printf("Byte: %d, C: %d\n",helpbyte,c);
+      //printf("Byte: %d, C: %d\n",helpbyte,c);
       helpbyte = helpbyte - c;
       bits[i] = 1;
     }else{
       //DEBUG
-      printf("bits[%d]\n: %d",i,bits[i]);
+      //printf("bits[%d]\n: %d",i,bits[i]);
       bits[i] = 0;
       //DEBUG
       //printf("bits[%d]\n: %d",i,bits[i]);
     }
     if(c == 1){
       //DEBUG
-      printf("RESET c = %d byte = %d\n",c,helpbyte);
+      //printf("RESET c = %d byte = %d\n",c,helpbyte);
       c = 128;
       helpbyte = byte2;
     }else{
       //DEBUG
-      printf("c: %d :/ 2 = \n",c);
+      //printf("c: %d :/ 2 = \n",c);
       c /= 2;
-      printf("%d\n",c);
+      //printf("%d\n",c);
     }
   }
 }
@@ -75,6 +75,7 @@ int refillBits(char bits[16], FILE *fp){
     }else{
       return 0;
     }
+    fseek(fp,-1,SEEK_CUR);
 }
 
 int shiftBits(char bits[16],char bits2[16],FILE *fp){
@@ -95,15 +96,14 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
     if(bits2[i-shift] == -1){
       ret = refillBits(bits2,fp);
     }
-    //bits[i] = bits2[i-shift];
-    //set bits2
-    //bits2[i-shift] = -1;
     i++;
   }
   //&& take the rest from bits2
   i = 16 - shift;
+  shift = i;
   while(i<16){
     bits[i] = bits2[i-shift];
+    bits2[i-shift] = -1;
     i++;
   }
   //shift bits2
@@ -114,6 +114,7 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
   i = shift;
   while(i<16){
     bits2[i-shift] = bits2[i];
+    bits2[i] = -1;
     i++;
   }
   //DEBUG
@@ -238,7 +239,7 @@ int main(int argc, char *argv[])
       dbgPrintBits(bits);
       dbgPrintBits(queue);
 
-      return 0;
+      //return 0;
       //algorithm
       int decMode = 0;
       while(queue[0] != -1){

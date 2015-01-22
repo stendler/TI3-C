@@ -61,25 +61,25 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
   }
 }
 
-int refillBits(char bits[16], FILE *fp){
+void refillBits(char bits[16], FILE *fp){
     //memset(&bits,0,sizeof(bits));
     //TODO DECODE mode?
     unsigned char next1, next2, next3;
     next1 = (unsigned char)fgetc(fp);
     next2 = (unsigned char)fgetc(fp);
-    next3 = (unsigned char)fgetc(fp);
-    printf("NextChars: %d %d %d\n",next1,next2,next3);
+    //next3 = (unsigned char)fgetc(fp);
+    //printf("NextChars: %d %d %d\n",next1,next2,next3);
     byteToBits(bits,next1,next2);
     fseek(fp,-1,SEEK_CUR);
-    if(next3 == EOF){
-      return 1;
-    }else{
-      return 0;
-    }
+    //if(next3 == EOF){
+    //  return 1;
+    //}else{
+    //  return 0;
+    //}
 }
 
-int shiftBits(char bits[16],char bits2[16],FILE *fp){
-  int i,ret = 0;
+void shiftBits(char bits[16],char bits2[16],FILE *fp){
+  int i = 0;
   //count how many leading zeros bits has
   while(bits[i] != 1){
     i++;
@@ -94,7 +94,7 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
   while(i<16){
     bits[i-shift] = bits[i];
     if(bits2[i-shift] == -1){
-      ret = refillBits(bits2,fp);
+      refillBits(bits2,fp);
     }
     i++;
   }
@@ -120,7 +120,6 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
   //DEBUG
   dbgPrintBits(bits);
   dbgPrintBits(bits2);
-  return ret;
 }
 
 void xor(char divident[16],char divisor[16]){
@@ -155,10 +154,10 @@ int main(int argc, char *argv[])
         len++;
       }
       if(
-        argv[1][len-3] == '.' &&
-        argv[1][len-2] == 'c' &&
-        argv[1][len-1] == 'r' &&
-        argv[1][len] == 'c'
+        argv[1][len-4] == '.' &&
+        argv[1][len-3] == 'c' &&
+        argv[1][len-2] == 'r' &&
+        argv[1][len-1] == 'c'
       ){
         //check checksum
         MODE = DECODE;
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
       char remain[2];
       //create file
       FILE *outputf = fopen(filename,"w+");
-
+      if(outputf != NULL){
       //write file
       if(MODE){
           //ENCODE : complete
@@ -223,7 +222,7 @@ int main(int argc, char *argv[])
       if(fseek(outputf,0,SEEK_SET)!=0){
           printf("error seeking in file\n");
       }
-
+      return 0;
       char bits[16], queue[16];
       refillBits(bits,outputf);
       refillBits(queue,outputf);
@@ -241,13 +240,9 @@ int main(int argc, char *argv[])
 
       //return 0;
       //algorithm
-      int decMode = 0;
       while(queue[0] != -1){
         xor(bits,divisor);
-        decMode = shiftBits(bits,queue,outputf);
-  //      if(decMode && !MODE){
-
-    //    }
+        shiftBits(bits,queue,outputf);
       }
 
       if(MODE){
@@ -281,10 +276,24 @@ int main(int argc, char *argv[])
           fputc(remain[1],outputf);
       }else{
           //DECODE check remainder
-
+          char checksum[16];
+          byteToBits(checksum,remain[0],remain[1]);
+          for(int z = 0; z<5;z++){
+            if(checksum[i] != bits[i]){
+              printf("CRC-Checksum stimmt nicht mit dem Inhalt ueberein!\n");
+              fclose(outputf);
+              remove(filename);
+              return 0;
+            }
+          }
       }
       //printf("EOF: %d %d\n",EOF,(unsigned char)EOF);
       //printf("asci 10: %c\n",10);
+      fclose(fp);
+      fclose(outputf);
+    }else{
+      printf("Could not create File %s\n",filename);
+    }
     }else{
       printf("File not found\n");
     }

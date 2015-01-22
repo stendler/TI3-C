@@ -47,7 +47,7 @@ int refillBits(char bits[16], FILE *fp){
     }
 }
 
-void shiftBits(char bits[16],char bits2[16],FILE *fp){
+int shiftBits(char bits[16],char bits2[16],FILE *fp){
   int i,ret = 0;
   //count how many leading zeros bits has
   while(bits[i] == 0){
@@ -67,6 +67,16 @@ void shiftBits(char bits[16],char bits2[16],FILE *fp){
     i++;
   }
   return ret;
+}
+
+void xor(char divident[16],char divisor[16]){
+  for(int i = 0; i < 16; i++){
+    if(divident[i] == dividor[i]){
+      divident[i] = 1;
+    }else{
+      divident[i] = 0;
+    }
+  }
 }
 
 
@@ -149,14 +159,19 @@ int main(int argc, char *argv[])
           }
       }
 
-      //TODO fseek
-      
+      //fseek
+      fseek(outputf,0,SEEK_SET);
+
       char bits[16], queue[16];
       refillBits(bits,fp);
       refillBits(queue,fp);
 
       //algorithm
-
+      int
+      while(){
+        xor()
+        shiftBits()
+      }
       //ENCODE --> add remainder to file
 
       //DECODE check remainder

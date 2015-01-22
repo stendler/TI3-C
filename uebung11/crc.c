@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
     // 1100 0000  0000 0101
     divident[0] = 192;
     divident[1] = 5;*/
-    char divident[16];
-    byteToBits(divident,192,5);
+    char divisor[16];
+    byteToBits(divisor,192,5);
 
     FILE *fp = fopen(argv[1],"r");
     if(fp != NULL){
@@ -163,15 +163,19 @@ int main(int argc, char *argv[])
       fseek(outputf,0,SEEK_SET);
 
       char bits[16], queue[16];
-      refillBits(bits,fp);
-      refillBits(queue,fp);
+      refillBits(bits,outputf);
+      refillBits(queue,outputf);
 
       //algorithm
-      int
-      while(){
-        xor()
-        shiftBits()
+      int decMode = 0;
+      while(queue[0] != -1){
+        xor(bits,divisor);
+        decMode = shiftBits(bits,queue,outputf);
+  //      if(decMode && !MODE){
+
+    //    }
       }
+
       //ENCODE --> add remainder to file
 
       //DECODE check remainder

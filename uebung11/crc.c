@@ -13,21 +13,37 @@
 
 int MODE;
 
-void byteToBits(char bits[16], unsigned char byte, unsigned char byte2)
+
+void dbgPrintBits(char bits[16]){
+  for(int i = 0; i < 16; i++){
+    printf("%d",bits[i]);
+  }
+  printf("\n");
+}
+
+void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
 {
   //bits:   jedes element dieses arrays[16] stellt ein bit dar
   //byte:   byte das in eine bitfolge konvertiert werden soll
-  unsigned char helpbyte = byte;
+  unsigned char helpbyte = byte1;
   unsigned char c = 128;
   for(int i = 0;i<16;i++){
+    if(helpbyte >= c){
+      //DEBUG
+      printf("Byte: %d, C: %d\n",helpbyte,c);
+      helpbyte -= c;
+      bits[i] = 1;
+    }else{
+      bits[i] = 0;
+    }
     if(c == 1){
+
       c = 128;
       helpbyte = byte2;
-    }
-    if(helpbyte >= c){
-      helpbyte -= c;
+      //DEBUG
+      printf("RESET c = %d byte = %d\n",c,helpbyte);
+    }else{
       c /= 2;
-      bits[i] = 1;
     }
   }
 }
@@ -39,6 +55,7 @@ int refillBits(char bits[16], FILE *fp){
     next1 = (unsigned char)fgetc(fp);
     next2 = (unsigned char)fgetc(fp);
     next3 = (unsigned char)fgetc(fp);
+    printf("NextChars: %d %d %d\n",next1,next2,next3);
     byteToBits(bits,next1,next2);
     if(next3 == EOF){
       return 1;
@@ -66,6 +83,9 @@ int shiftBits(char bits[16],char bits2[16],FILE *fp){
     bits2[i-shift] = -1;
     i++;
   }
+  //DEBUG
+  dbgPrintBits(bits);
+  dbgPrintBits(bits2);
   return ret;
 }
 
@@ -79,14 +99,6 @@ void xor(char divident[16],char divisor[16]){
   }
 }
 
-void dbgPrintBits(char bits[16]){
-  for(int i = 0; i< 16; i++){
-    printf("%d",bits[i]);
-  }
-  printf("\n");
-}
-
-
 int main(int argc, char *argv[])
 {
   if(argc == 2){ //argumente ueberpruefen
@@ -96,7 +108,7 @@ int main(int argc, char *argv[])
     divident[0] = 192;
     divident[1] = 5;*/
     char divisor[16];
-    byteToBits(divisor,192,5);
+    byteToBits(divisor,(unsigned char)192,(unsigned char)5);
     //DEBUG
     dbgPrintBits(divisor);
 
@@ -171,12 +183,21 @@ int main(int argc, char *argv[])
           }
       }
 
+      //DEBUG
+      printf("File copied\n");
       //fseek
-      fseek(outputf,0,SEEK_SET);
+      if(fseek(outputf,0,SEEK_SET)!=0){
+          printf("error seeking in file\n");
+      }
 
       char bits[16], queue[16];
       refillBits(bits,outputf);
       refillBits(queue,outputf);
+
+      //DEBUG
+      printf("Filled bits: \n");
+      dbgPrintBits(bits);
+      dbgPrintBits(queue);
 
       //algorithm
       int decMode = 0;

@@ -70,12 +70,12 @@ int refillBits(char bits[16], FILE *fp){
     next3 = (unsigned char)fgetc(fp);
     printf("NextChars: %d %d %d\n",next1,next2,next3);
     byteToBits(bits,next1,next2);
+    fseek(fp,-1,SEEK_CUR);
     if(next3 == EOF){
       return 1;
     }else{
       return 0;
     }
-    fseek(fp,-1,SEEK_CUR);
 }
 
 int shiftBits(char bits[16],char bits2[16],FILE *fp){
@@ -252,12 +252,39 @@ int main(int argc, char *argv[])
 
       if(MODE){
           //ENCODE --> add remainder to file
-
+          int remIndicator = 0;
+          int c = 128;
+          for(int i = 0;i<16;i++){
+            //DEBUG
+            //printf("i = %d , byte: %d, c: %d\n",i,helpbyte,c);
+            if(bits[i] == 1){
+              //DEBUG
+              //printf("Byte: %d, C: %d\n",helpbyte,c);
+              remain[remIndicator] += c;
+            }
+            if(c == 1){
+              if(remIndicator == 1){
+                break;
+              }
+              //DEBUG
+              //printf("RESET c = %d byte = %d\n",c,helpbyte);
+              c = 128;
+              remIndicator = 1;
+            }else{
+              //DEBUG
+              //printf("c: %d :/ 2 = \n",c);
+              c /= 2;
+              //printf("%d\n",c);
+            }
+          }
+          fputc(remain[0],outputf);
+          fputc(remain[1],outputf);
       }else{
           //DECODE check remainder
 
       }
-
+      //printf("EOF: %d %d\n",EOF,(unsigned char)EOF);
+      //printf("asci 10: %c\n",10);
     }else{
       printf("File not found\n");
     }

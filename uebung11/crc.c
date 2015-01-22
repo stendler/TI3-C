@@ -25,25 +25,36 @@ void byteToBits(char bits[16], unsigned char byte1, unsigned char byte2)
 {
   //bits:   jedes element dieses arrays[16] stellt ein bit dar
   //byte:   byte das in eine bitfolge konvertiert werden soll
+  //memset(&bits,0,sizeof(bits));
   unsigned char helpbyte = byte1;
   unsigned char c = 128;
+  //DEBUG
+  printf("byteToBits: starting for loop\n");
   for(int i = 0;i<16;i++){
+    //DEBUG
+    printf("i = %d , byte: %d, c: %d\n",i,helpbyte,c);
     if(helpbyte >= c){
       //DEBUG
       printf("Byte: %d, C: %d\n",helpbyte,c);
       helpbyte -= c;
       bits[i] = 1;
     }else{
+      //DEBUG
+      //printf("bits[%d]: %d",i,bits[i]);
       bits[i] = 0;
+      //DEBUG
+      //printf("bits[%d]: %d",i,bits[i]);
     }
     if(c == 1){
-
-      c = 128;
-      helpbyte = byte2;
       //DEBUG
       printf("RESET c = %d byte = %d\n",c,helpbyte);
+      c = 128;
+      helpbyte = byte2;
     }else{
+      //DEBUG
+      printf("c: %d :/ 2 = \n",c);
       c /= 2;
+      printf("%d\n",c);
     }
   }
 }
@@ -158,7 +169,7 @@ int main(int argc, char *argv[])
 
       char remain[2];
       //create file
-      FILE *outputf = fopen(filename,"w");
+      FILE *outputf = fopen(filename,"w+");
 
       //write file
       if(MODE){

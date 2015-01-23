@@ -61,7 +61,7 @@ if(fp != NULL){
     filename[i+2] = 'r';
     filename[i+3] = 'c';
   }else{  //DECODE
-    filename[i] = 0;
+    filename[i-4] = 0;
   }
   //DEBUG
   printf("filename %s\n\n",filename);
@@ -139,6 +139,23 @@ if(fp != NULL){
       bits[1] = remain[1];
   }
 
+  //Mode:
+  if(MODE){
+  //encode --> remiander ans ende der datei haengen
+    fputc((char)remain[0],outputf);
+    fputc((char)remain[1],outputf);
+  }else{
+  //decode --> remainder mit decodeChecksum ueberpruefen und Ausgabe
+    if(remain[0] == decodeChecksum[0] && remain[1] == decodeChecksum[1]){
+      //erfolgreich
+    }else{
+      //datei wieder loeschen & warnung ausgeben
+      printf("CRC-Checksum stimmt nicht mit dem Inhalt ueberein!\n");
+      fclose(outputf);
+      remove(filename);
+      return 0;
+    }
+  }
   }else{
     printf("Could not create File %s\n",filename);
   }

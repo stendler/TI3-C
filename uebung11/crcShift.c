@@ -36,6 +36,13 @@ void shiftLeft(unsigned char bits[3], int nr){
   }
 }
 
+int sqr(int basis, int exponent){
+  for(int i = 0; i<exponent;i++){
+    basis *= basis;
+  }
+  return basis;
+}
+
 int main(int argc, char *argv[])
 {
   if(argc == 2){ //argumente ueberpruefen
@@ -133,7 +140,7 @@ if(fp != NULL){
       //shift bis eine 1 vorne steht ---- evtl auslagern ?!
         //zaehlen wie viele 0en vorne stehen
         for(int p=7;p>=0;p--){
-          if(bits[0] > pow(2,p)){ //TODO sqr != ^
+          if(bits[0] > sqr(2,p)){ //sqr != ^
             //shiftCount++;
             shift++;
           }

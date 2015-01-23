@@ -7,6 +7,7 @@
 #include <fcntl.h>//open + close
 #include <unistd.h> //read+write
 #include <string.h>
+#include <math.h>
 
 #define DECODE 0
 #define ENCODE 1
@@ -65,7 +66,7 @@ if(fp != NULL){
   //DEBUG
   printf("filename %s\n\n",filename);
 
-  char remain[2];
+  char decodeChecksum[2];
   //create file
   FILE *outputf = fopen(filename,"w+");
   if(outputf != NULL){
@@ -81,8 +82,8 @@ if(fp != NULL){
       char buffer;
       while ((buffer = fgetc(fp)) != EOF){
         fputc(buffer,outputf);
-        remain[0] = fgetc(fp);
-        remain[1] = fgetc(fp);
+        decodeChecksum[0] = fgetc(fp);
+        decodeChecksum[1] = fgetc(fp);
         buffer = fgetc(fp);
         if(buffer == EOF){
           break;
@@ -104,25 +105,38 @@ if(fp != NULL){
   bits[1] = (unsigned char)fgetc(outputf);
   bits[2] = (unsigned char)fgetc(outputf);
 
+  unsigned char remain[2];
   char shiftCount, shift = 0; //zaehlt von 0 bis 8 -> bei 8 reset und char[2] bekommt neue werte
   while(bits[2] != 255){
       //shift bis eine 1 vorne steht ---- evtl auslagern ?!
         //zaehlen wie viele 0en vorne stehen
         for(int p=7;p>=0;p--){
-          if(bits[0] > 2^p){
+          if(bits[0] > pow(2,p)){ //TODO sqr != ^
             //shiftCount++;
             shift++;
           }
         }
         if(8-shiftCount-shift <= 0){
-          bits = bits << (8-shiftCount);
+          bits <<= (8-shiftCount);
           bits[2] = (unsigned char)fgetc(outputf);
-          
+          if(bits[2] == 255){
+            //TODO no more shifts -- bits[0&1] are the remainder
+            shiftCount =0;
+            //but one more xor and then break (so nothing more happens here, right?)
+          }else{
+            //shift the rest
+            bits <<= (shift-shiftCount);
+            shiftCount = shift - shiftCount;
+          }
         }else{
-          bits = bits << shift;
+          bits <<= shift;
+          shiftCount += shift;
         }
-
       //xor von bits[0/1] und divisor[0/1]
+      remain[0] = bits[0] ^ divisor[0];
+      remain[1] = bits[1] ^ divisor[1];
+      bits[0] = remain[0];
+      bits[1] = remain[1];
   }
 
   }else{

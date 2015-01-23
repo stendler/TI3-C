@@ -14,6 +14,28 @@
 
 int MODE;
 
+void shiftLeft(unsigned char bits[3], int nr){
+  for(int i = 1; i <= nr; i++){
+    //shift the first byte nr times
+    bits[0] <<= 1;
+    //get bits which will get shifted out of the second byte
+    if(bits[1] >= 128){
+      //add those bits shifted out to first byte
+      bits[0] += 1;
+    }
+    //shift 2nd byte
+    bits[1] <<= 1;
+    //get bits which will get shifted out of the third byte
+    if(bits[2] >= 128){
+      //add those bits shifted out to second byte
+      bits[1] += 1;
+    }
+    //!---- do that in main plz --- care if 3rd byte will be empty --> refresh from file
+    //shift 3rd byte
+    bits[2] <<= 1;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   if(argc == 2){ //argumente ueberpruefen
@@ -106,7 +128,7 @@ if(fp != NULL){
   bits[2] = (unsigned char)fgetc(outputf);
 
   unsigned char remain[2];
-  char shiftCount, shift = 0; //zaehlt von 0 bis 8 -> bei 8 reset und char[2] bekommt neue werte
+  unsigned char shiftCount, shift = 0; //zaehlt von 0 bis 8 -> bei 8 reset und char[2] bekommt neue werte
   while(bits[2] != 255){
       //shift bis eine 1 vorne steht ---- evtl auslagern ?!
         //zaehlen wie viele 0en vorne stehen
@@ -117,19 +139,22 @@ if(fp != NULL){
           }
         }
         if(8-shiftCount-shift <= 0){
-          bits <<= (8-shiftCount);
+          //bits <<= (unsigned char)(8-shiftCount);
+          shiftLeft(bits,8-shiftCount);
           bits[2] = (unsigned char)fgetc(outputf);
           if(bits[2] == 255){
             //TODO no more shifts -- bits[0&1] are the remainder
-            shiftCount =0;
+            shiftCount = 0;
             //but one more xor and then break (so nothing more happens here, right?)
           }else{
             //shift the rest
-            bits <<= (shift-shiftCount);
+            //bits <<= (shift-shiftCount);
+            shiftLeft(bits,shift-shiftCount);
             shiftCount = shift - shiftCount;
           }
         }else{
-          bits <<= shift;
+          //bits <<= shift;
+          shiftLeft(bits,shift);
           shiftCount += shift;
         }
       //xor von bits[0/1] und divisor[0/1]

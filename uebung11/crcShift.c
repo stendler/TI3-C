@@ -36,16 +36,14 @@ void shiftLeft(unsigned char bits[3], int nr){
   }
 }
 
-int sqr(int basis, int exponent){
-  if(exponent <= 0){
-    return 1;
-  }
-  for(int i = 1; i<exponent;i++){
-    basis *= basis;
+unsigned char sqr(char basis, char exponent){
+  unsigned char potenz = 1;
+  for(char i = 0; i<exponent;i++){
+    potenz *= (unsigned char)basis;
   }
   //DEBUG
-  printf("sqr(2,%d) = %d\n",exponent,basis);
-  return basis;
+  printf("sqr(%d,%d) = %d\n",basis,exponent,potenz);
+  return potenz;
 }
 
 int main(int argc, char *argv[])
@@ -100,7 +98,7 @@ if(fp != NULL){
   //DEBUG
   printf("filename %s\n\n",filename);
 
-  char decodeChecksum[2];
+  unsigned char decodeChecksum[2];
   //create file
   FILE *outputf = fopen(filename,"w+");
   if(outputf != NULL){
@@ -116,8 +114,8 @@ if(fp != NULL){
       char buffer;
       while ((buffer = fgetc(fp)) != EOF){
         fputc(buffer,outputf);
-        decodeChecksum[0] = fgetc(fp);
-        decodeChecksum[1] = fgetc(fp);
+        decodeChecksum[0] = (unsigned char)fgetc(fp);
+        decodeChecksum[1] = (unsigned char)fgetc(fp);
         buffer = fgetc(fp);
         if(buffer == EOF){
           break;
@@ -144,11 +142,15 @@ if(fp != NULL){
   while(bits[2] != 255){
       //shift bis eine 1 vorne steht ---- evtl auslagern ?!
         //zaehlen wie viele 0en vorne stehen
-        for(int p=7;p>=0;p--){
-          if(bits[0] >= sqr(2,p)){ //sqr != ^
+        unsigned char helpbyte = bits[0];
+        for(char p=7;p>=0;p--){
+          unsigned char square = sqr(2,p);
+          if(helpbyte <= square){ //sqr != ^
             //shiftCount++;
+            printf("%d >= %d\n",helpbyte,sqr(2,p));
             shift++;
           }
+          helpbyte -= square;
         }
         //DEBUG
         printf("shift %d needed",shift);
@@ -196,6 +198,7 @@ if(fp != NULL){
     }else{
       //datei wieder loeschen & warnung ausgeben
       printf("CRC-Checksum stimmt nicht mit dem Inhalt ueberein!\n");
+      printf("0: %d != %d \n1: %d != %d\n",remain[0],decodeChecksum[0],remain[1],decodeChecksum[1]);
       fclose(outputf);
       remove(filename);
       return 0;

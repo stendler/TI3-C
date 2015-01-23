@@ -16,11 +16,10 @@ int MODE;
 int main(int argc, char *argv[])
 {
   if(argc == 2){ //argumente ueberpruefen
-    //char mode;
-    /*unsigned char divident[2]; //CRC16 = x 16 + x 15 + x 2 + 1
+    unsigned char divisor[2]; //CRC16 = x 16 + x 15 + x 2 + 1
     // 1100 0000  0000 0101
-    divident[0] = 192;
-    divident[1] = 5;*/
+    divisor[0] = 192;
+    divisor[1] = 5;
 
 FILE *fp = fopen(argv[1],"r");
 if(fp != NULL){
@@ -99,6 +98,33 @@ if(fp != NULL){
   if(fseek(outputf,0,SEEK_SET)!=0){
       printf("error seeking in file\n");
   }
+
+  unsigned char bits[3]; // 0&1 sind divident 2 ist nachfueller
+  bits[0] = (unsigned char)fgetc(outputf);
+  bits[1] = (unsigned char)fgetc(outputf);
+  bits[2] = (unsigned char)fgetc(outputf);
+
+  char shiftCount, shift = 0; //zaehlt von 0 bis 8 -> bei 8 reset und char[2] bekommt neue werte
+  while(bits[2] != 255){
+      //shift bis eine 1 vorne steht ---- evtl auslagern ?!
+        //zaehlen wie viele 0en vorne stehen
+        for(int p=7;p>=0;p--){
+          if(bits[0] > 2^p){
+            //shiftCount++;
+            shift++;
+          }
+        }
+        if(8-shiftCount-shift <= 0){
+          bits = bits << (8-shiftCount);
+          bits[2] = (unsigned char)fgetc(outputf);
+          
+        }else{
+          bits = bits << shift;
+        }
+
+      //xor von bits[0/1] und divisor[0/1]
+  }
+
   }else{
     printf("Could not create File %s\n",filename);
   }

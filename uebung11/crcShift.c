@@ -42,7 +42,7 @@ unsigned char sqr(char basis, char exponent){
     potenz *= (unsigned char)basis;
   }
   //DEBUG
-  printf("sqr(%d,%d) = %d\n",basis,exponent,potenz);
+  //printf("sqr(%d,%d) = %d\n",basis,exponent,potenz);
   return potenz;
 }
 
@@ -147,13 +147,13 @@ if(fp != NULL){
           unsigned char square = sqr(2,p);
           if(helpbyte <= square){ //sqr != ^
             //shiftCount++;
-            printf("%d >= %d\n",helpbyte,sqr(2,p));
+            //printf("%d <= %d\n",helpbyte,sqr(2,p));
             shift++;
           }
           helpbyte -= square;
         }
         //DEBUG
-        printf("shift %d needed",shift);
+        //printf("shift %d needed",shift);
         if(8-shiftCount-shift <= 0){
           //bits <<= (unsigned char)(8-shiftCount);
           shiftLeft(bits,8-shiftCount);
@@ -175,12 +175,12 @@ if(fp != NULL){
         }
         shift = 0;
         //debug
-        printf("shifted: %d - %d - %d\n",bits[0],bits[1],bits[2]);
+        //printf("shifted: %d - %d - %d\n",bits[0],bits[1],bits[2]);
       //xor von bits[0/1] und divisor[0/1]
       remain[0] = bits[0] ^ divisor[0];
       remain[1] = bits[1] ^ divisor[1];
       //debug
-      printf("remain after xor: %d - %d\n", remain[0],remain[1]);
+      //printf("remain after xor: %d - %d\n", remain[0],remain[1]);
       bits[0] = remain[0];
       bits[1] = remain[1];
   }
@@ -198,7 +198,7 @@ if(fp != NULL){
     }else{
       //datei wieder loeschen & warnung ausgeben
       printf("CRC-Checksum stimmt nicht mit dem Inhalt ueberein!\n");
-      printf("0: %d != %d \n1: %d != %d\n",remain[0],decodeChecksum[0],remain[1],decodeChecksum[1]);
+      //printf("0: %d != %d \n1: %d != %d\n",remain[0],decodeChecksum[0],remain[1],decodeChecksum[1]);
       fclose(outputf);
       remove(filename);
       return 0;

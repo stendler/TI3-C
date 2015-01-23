@@ -37,9 +37,14 @@ void shiftLeft(unsigned char bits[3], int nr){
 }
 
 int sqr(int basis, int exponent){
-  for(int i = 0; i<exponent;i++){
+  if(exponent <= 0){
+    return 1;
+  }
+  for(int i = 1; i<exponent;i++){
     basis *= basis;
   }
+  //DEBUG
+  printf("sqr(2,%d) = %d\n",exponent,basis);
   return basis;
 }
 
@@ -140,11 +145,13 @@ if(fp != NULL){
       //shift bis eine 1 vorne steht ---- evtl auslagern ?!
         //zaehlen wie viele 0en vorne stehen
         for(int p=7;p>=0;p--){
-          if(bits[0] > sqr(2,p)){ //sqr != ^
+          if(bits[0] >= sqr(2,p)){ //sqr != ^
             //shiftCount++;
             shift++;
           }
         }
+        //DEBUG
+        printf("shift %d needed",shift);
         if(8-shiftCount-shift <= 0){
           //bits <<= (unsigned char)(8-shiftCount);
           shiftLeft(bits,8-shiftCount);
@@ -164,9 +171,14 @@ if(fp != NULL){
           shiftLeft(bits,shift);
           shiftCount += shift;
         }
+        shift = 0;
+        //debug
+        printf("shifted: %d - %d - %d\n",bits[0],bits[1],bits[2]);
       //xor von bits[0/1] und divisor[0/1]
       remain[0] = bits[0] ^ divisor[0];
       remain[1] = bits[1] ^ divisor[1];
+      //debug
+      printf("remain after xor: %d - %d\n", remain[0],remain[1]);
       bits[0] = remain[0];
       bits[1] = remain[1];
   }
@@ -180,6 +192,7 @@ if(fp != NULL){
   //decode --> remainder mit decodeChecksum ueberpruefen und Ausgabe
     if(remain[0] == decodeChecksum[0] && remain[1] == decodeChecksum[1]){
       //erfolgreich
+      printf("gueltige checksum\n");
     }else{
       //datei wieder loeschen & warnung ausgeben
       printf("CRC-Checksum stimmt nicht mit dem Inhalt ueberein!\n");

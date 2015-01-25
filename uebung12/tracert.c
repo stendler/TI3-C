@@ -40,10 +40,20 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 #include <errno.h> //For errno - the error number
 #include <netinet/tcp.h>	//Provides declarations for tcp header
 #include <netinet/ip.h>	//Provides declarations for ip header
-//
-//
-//
+//#include <pthread.h>
+//#include <netdb.h>	//hostend
+//#include <arpa/inet.h>
 
+struct pseudo_header    //needed for checksum calculation
+{
+	unsigned int source_address; //u_int32_t
+	unsigned int dest_address;   //u_int32_t
+	unsigned char placeholder;   //u_int8_t
+	unsigned char protocol;      //u_int8_t
+	unsigned short tcp_length;   //u_int16_t
+
+	struct tcphdr tcp;           // not in 1st source
+};
 
 //main
 int main(int argc, char *argv[])

@@ -28,19 +28,41 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 
 */
 
+//CODE - SOURCES:
+//http://www.binarytides.com/raw-sockets-c-code-linux/
+////http://www.binarytides.com/tcp-syn-portscan-in-c-with-linux-sockets/
 
 //includes
+#include <stdio.h>	//for printf
+#include <string.h> //memset
+#include <sys/socket.h>	//for socket ofcourse
+#include <stdlib.h> //for exit(0);
+#include <errno.h> //For errno - the error number
+#include <netinet/tcp.h>	//Provides declarations for tcp header
+#include <netinet/ip.h>	//Provides declarations for ip header
+//
+//
+//
+
 
 //main
+int main(int argc, char *argv[])
+{
+  //check parameter -> hostname / ip-address - TODO: - maybe an additional optional argument for a custom port?
+  if(argc == 2){
 
-//check parameter -> hostname / ip-address
+  //create send socket
+  int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW
+  if(sd == -1)
+  {
+    //socket creation failed, may be because of non-root privileges
+    perror("Failed to create socket - do you tried it with root?");
+    exit(1);
+  }
+  //create listener socket
 
-//create send socket
-
-//create listener socket
-
-//unsigned char ttl = 1;
-//while loop
+  //unsigned char ttl = 1;
+  //while loop
 
 //send custom ip header with udp header in body and ttl
 //multiple simultanously ?
@@ -48,3 +70,8 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 //receive ICMP packets -> print hopname/ip & timestamp(?)
 
 //else (port unreachable) -> end we got our host
+  }else{
+    //nicht genuegend argumente
+    //print usage
+  }
+}

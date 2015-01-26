@@ -66,22 +66,29 @@ int main(int argc, char *argv[])
   if(sd == -1)
   {
     //socket creation failed, may be because of non-root privileges
-    perror("Failed to create socket - do you tried it with root?");
+    perror("Failed to create socket - try being root next time\n");
     exit(1);
   }
   //create listener socket
 
+  //build custom headers
+    //ip
+
+    //tcp/udp
   //unsigned char ttl = 1;
   //while loop
 
-//send custom ip header with udp header in body and ttl
-//multiple simultanously ?
+    //set ttl in ip header
+		//package / checksum? &more
+    //send custom ip header with udp/tcp header in body and ttl
+    //multiple simultanously ?
 
-//receive ICMP packets -> print hopname/ip & timestamp(?)
+    //receive ICMP packets -> print hopname/ip & timestamp(?)
 
-//else (port unreachable) -> end we got our host
+//else (port unreachable/SYN;ACK) -> end we got our host
   }else{
     //nicht genuegend argumente
     //print usage
+    printf("usage: %s hostname [port]\n\nPort is OPTIONAL\n\n",argv[0]);
   }
 }

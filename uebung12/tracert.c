@@ -61,31 +61,31 @@ int main(int argc, char *argv[])
   //check parameter -> hostname / ip-address - TODO: - maybe an additional optional argument for a custom port?
   if(argc == 2){
 
-  //create send socket
-  int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW
-  if(sd == -1)
-  {
-    //socket creation failed, may be because of non-root privileges
-    perror("Failed to create socket - try being root next time\n");
-    exit(1);
-  }
-  //create listener socket
+  	//create send socket
+  	int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW
+  	if(sd == -1)
+  	{
+    	//socket creation failed, may be because of non-root privileges
+    	perror("Failed to create socket - try being root next time\n");
+    	exit(1);
+  	}
+  	//TODO create listener socket
 
-  //build custom headers
-    //ip
+  	//TODO build custom headers
+    	//TODO ip
 
-    //tcp/udp
-  //unsigned char ttl = 1;
-  //while loop
+    	//TODO tcp/udp
+  	//TODO unsigned char ttl = 1;
+  	//TODO while loop
 
-    //set ttl in ip header
-		//package / checksum? &more
-    //send custom ip header with udp/tcp header in body and ttl
-    //multiple simultanously ?
+    	//TODO set ttl in ip header
+			//TODO package / checksum? &more
+    	//TODO send custom ip header with udp/tcp header in body and ttl
+    	//TODO multiple simultanously ?
 
-    //receive ICMP packets -> print hopname/ip & timestamp(?)
+    	//TODO receive ICMP packets -> print hopname/ip & timestamp(?)
 
-//else (port unreachable/SYN;ACK) -> end we got our host
+			//TODO else (port unreachable/SYN;ACK) -> end we got our host
   }else{
     //nicht genuegend argumente
     //print usage

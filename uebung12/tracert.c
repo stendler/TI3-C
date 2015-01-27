@@ -69,10 +69,73 @@ int main(int argc, char *argv[])
     	perror("Failed to create socket - try being root next time\n");
     	exit(1);
   	}
+		/* TODO: this is a container for code used in sources but I couldn't find use for yet
+		//Datagram to represent the packet
+	char datagram[4096];
+
+	//IP header
+	struct iphdr *iph = (struct iphdr *) datagram;
+
+	//TCP header
+	struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
+
+	struct sockaddr_in  dest;
+	struct pseudo_header psh;
+
+	char *target = argv[1];
+
+	if(argc < 2)
+	{
+		printf("Please specify a hostname \n");
+		exit(1);
+	}
+
+	if( inet_addr( target ) != -1)
+	{
+		dest_ip.s_addr = inet_addr( target );
+	}
+	else
+	{
+		char *ip = hostname_to_ip(target);
+		if(ip != NULL)
+		{
+			printf("%s resolved to %s \n" , target , ip);
+			//Convert domain name to IP
+			dest_ip.s_addr = inet_addr( hostname_to_ip(target) );
+		}
+		else
+			{
+			printf("Unable to resolve hostname : %s" , target);
+			exit(1);
+		}
+	}
+
+	int source_port = 43591;
+
+	memset (datagram, 0, 4096);	// zero out the buffer
+		*/
   	//TODO create listener socket
 
   	//TODO build custom headers
     	//TODO ip
+				//get local ip
+				char source_ip[20];
+				get_local_ip( source_ip ); //TODO function currently undeclared
+				printf("Local source IP is %s \n" , source_ip);
+			//Fill in the IP Header
+			iph->ihl = 5;
+			iph->version = 4;
+			iph->tos = 0;
+			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr);
+			iph->id = htons (54321);	//Id of this packet //TODO: what does ID mean? seq number?
+			iph->frag_off = htons(16384);
+			iph->ttl = 0; 			//we need this one later
+			iph->protocol = IPPROTO_TCP;
+			iph->check = 0;		//Set to 0 before calculating checksum
+			iph->saddr = inet_addr ( source_ip );	//Spoof the source ip address
+			iph->daddr = dest_ip.s_addr;
+
+	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl
 
     	//TODO tcp/udp
   	//TODO unsigned char ttl = 1;

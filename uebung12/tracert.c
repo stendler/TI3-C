@@ -111,12 +111,6 @@ int main(int argc, char *argv[])
 
 	int source_port = 43591;
 
-sendto (sfd, buf, 28, 0, SA & addr, sizeof addr);
-char rcvbuffer[4096] = { 0 };
-recvfrom (sfd, rcvbuffer, 28, 0, SA & addr2, &len);
-struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
-      if (icmphd2->type != 0)
-
 		END unplaced source code container*/
 
   	//build custom headers
@@ -161,7 +155,7 @@ struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
 			struct iphdr *iph = (struct iphdr *) datagram;
 
 			//TCP header
-			struct icmphdr *icmph = (struct icmphdr *) (datagram + sizeof (struct ip)); // TODO source: (datagram +20) ?
+			struct icmphdr *icmph = (struct icmphdr *) (datagram + sizeof (struct ip));
 
 			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
@@ -169,43 +163,54 @@ struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
 			iph->tot_len = sizeof (struct ip) + sizeof (struct icmphdr);
 			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
 			iph->frag_off = htons(16384); //XXX unknown use
-			iph->ttl = 0; 			//TODO we need this one later
+			iph->ttl = 0; 			//we need this one later
 			iph->protocol = IPPROTO_ICMP;
 			iph->check = 0;		//Set to 0 before calculating checksum
 			iph->saddr = inet_addr ( source_ip );	//Spoof the source ip address
 			iph->daddr = dest_ip.s_addr;
 
-	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl / or never - maybe the kernel does this for us?
-
-    	//TODO icmp
+    	//icmp
 			icmphd->type = ICMP_ECHO; // ping request
       icmphd->code = 0;					//
       icmphd->checksum = 0;
       icmphd->un.echo.id = 0;
-      icmphd->un.echo.sequence = hop + 1; //TODO das sollte evtl mit in die Schleife
 
 			//setting up sending socket
 			dest.sin_family = AF_INET;
 			dest.sin_addr.s_addr = dest_ip.s_addr;
-			dest.sin_port = //TODO ping port?
+			dest.sin_port = htons(7); //TODO ping port?
 
 			//create listener socket_addr
 			struct sockaddr_in listener;
 			socklen_t saddr_len = sizeof (struct sockaddr_in);
 
-  	//TODO unsigned char ttl = 1;
+  		//our hop counter which gets incremented;
+			unsigned char ttl = 1;
+			icmphd->un.echo.sequence = ttl;
 
-  	//TODO while loop
-
-    	//TODO set ttl in ip header
-			//TODO package / checksum? &more
-    	//TODO send custom ip header with udp/tcp header in body and ttl
-    	//TODO multiple simultanously ?
-
-    	//TODO receive ICMP packets -> print hopname/ip & timestamp(?)
-
-			//TODO else (port unreachable/SYN;ACK) -> end we got our host
-  }else{
+			//while loop
+			while(ttl <= 255){
+				//set ttl in ip header
+				iph->ttl = ttl;
+				//TODO package / checksum? &more
+				//iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
+				//icmp->checksum = ...
+				//TODO multiple simultanously ? --> for loop which does'nt incr ttl but sends 3 packages
+					//send custom ip header with icmp header in body and ttl
+					sendto (sd, buf, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest);
+    			//receive ICMP packets
+					char rcvbuffer[4096] = { 0 };
+					recvfrom (sd, rcvbuffer, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);
+					struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
+					//print [ttl] hop_ip (TODO resolve) [timestamp/delay]
+					printf("[%d] %s\n",ttl,inet_ntoa(listener.sin_addr));
+					if (icmphd2->type == 0){
+						printf("\n Destination reached!\n");
+						return 0;
+					}
+				ttl++;
+  		}
+	}else{
     //nicht genuegend argumente
     //print usage
     printf("usage: %s hostname [port]\n\nPort is OPTIONAL\n\n",argv[0]);

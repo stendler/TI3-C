@@ -111,6 +111,12 @@ int main(int argc, char *argv[])
 
 	int source_port = 43591;
 
+sendto (sfd, buf, 28, 0, SA & addr, sizeof addr);
+char rcvbuffer[4096] = { 0 };
+recvfrom (sfd, rcvbuffer, 28, 0, SA & addr2, &len);
+struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
+      if (icmphd2->type != 0)
+
 		END unplaced source code container*/
 
   	//build custom headers
@@ -178,9 +184,14 @@ int main(int argc, char *argv[])
       icmphd->un.echo.id = 0;
       icmphd->un.echo.sequence = hop + 1; //TODO das sollte evtl mit in die Schleife
 
-			//TODO setting up sending socket
+			//setting up sending socket
+			dest.sin_family = AF_INET;
+			dest.sin_addr.s_addr = dest_ip.s_addr;
+			dest.sin_port = //TODO ping port?
 
-			//TODO create listener socket
+			//create listener socket_addr
+			struct sockaddr_in listener;
+			socklen_t saddr_len = sizeof (struct sockaddr_in);
 
   	//TODO unsigned char ttl = 1;
 

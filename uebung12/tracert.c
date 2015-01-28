@@ -88,50 +88,32 @@ int main(int argc, char *argv[])
   if(argc == 2){
 
   	//create send socket
-  	int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW TODO IPPROTO_RAW and we save goto1 later
+  	int sd = socket (PF_INET, SOCK_RAW, IPPROTO_ICMP); //IPv4,Raw-socket, IPPROTO_TCP/RAW TODO IPPROTO_RAW and we save goto1 later
   	if(sd == -1)
   	{
     	//socket creation failed, may be because of non-root privileges
     	perror("Failed to create socket - try being root next time\n");
     	exit(1);
   	}
+		//IP_HDRINCL to tell the kernel that headers are included in the packet
+		int one = 1;
+		const int *val = &one;
+
+		if (setsockopt (sd, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0) //TODO is IPPROTO_IP correct?
+		{
+			printf ("Error setting IP_HDRINCL. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+			exit(0);
+		}
+
 		/* TODO: this is a container for code used in sources but I couldn't find use for yet
 
 	struct pseudo_header psh;
 
 	int source_port = 43591;
 
-	//TCP Header
-	tcph->source = htons ( source_port );
-	tcph->dest = htons (80);
-	tcph->seq = htonl(1105024978);
-	tcph->ack_seq = 0;
-	tcph->doff = sizeof(struct tcphdr) / 4;		//Size of tcp header
-	tcph->fin=0;
-	tcph->syn=1;
-	tcph->rst=0;
-	tcph->psh=0;
-	tcph->ack=0;
-	tcph->urg=0;
-	tcph->window = htons ( 14600 );	// maximum allowed window size
-	tcph->check = 0; //if you set a checksum to zero, your kernel's IP stack should fill in the correct checksum during transmission
-	tcph->urg_ptr = 0;
-
-	//IP_HDRINCL to tell the kernel that headers are included in the packet TODO goto1
-	int one = 1;
-	const int *val = &one;
-
-	if (setsockopt (sd, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0)
-	{
-		printf ("Error setting IP_HDRINCL. Error number : %d . Error message : %s \n" , errno , strerror(errno));
-		exit(0);
-	}
-
 		END unplaced source code container*/
 
-  	//TODO create listener socket
-
-  	//TODO build custom headers
+  	//build custom headers
     	//Datagram to represent the packet
 			char datagram[4096];
 			memset (datagram, 0, 4096);	// zero out the buffer
@@ -143,7 +125,8 @@ int main(int argc, char *argv[])
 				printf("Local source IP is %s \n" , source_ip);
 
 				//get host ip
-				struct sockaddr_in  dest;
+				struct in_addr dest_ip;
+				struct sockaddr_in  dest,recv;
 				char *target = argv[1];
 
 				if( inet_addr( target ) != -1)
@@ -157,7 +140,7 @@ int main(int argc, char *argv[])
 					{
 						printf("%s resolved to %s \n" , target , ip);
 						//Convert domain name to IP
-						dest_ip.s_addr = inet_addr( hostname_to_ip(target) ); //FIXME is this var really named dest_ip? or just dest?
+						dest_ip.s_addr = inet_addr( hostname_to_ip(target) );
 					}
 					else
 						{
@@ -166,30 +149,41 @@ int main(int argc, char *argv[])
 					}
 				}
 
-			//Fill in the IP Header //TODO iph not yet declared
+			//Fill in the IP Header
 
 			//IP header
 			struct iphdr *iph = (struct iphdr *) datagram;
 
 			//TCP header
-			struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
+			struct icmphdr *icmph = (struct icmphdr *) (datagram + sizeof (struct ip)); // TODO source: (datagram +20) ?
 
 			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
 			iph->tos = 0; //XXX unknown use
-			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr);
+			iph->tot_len = sizeof (struct ip) + sizeof (struct icmphdr);
 			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
 			iph->frag_off = htons(16384); //XXX unknown use
 			iph->ttl = 0; 			//TODO we need this one later
-			iph->protocol = IPPROTO_TCP;
+			iph->protocol = IPPROTO_ICMP;
 			iph->check = 0;		//Set to 0 before calculating checksum
 			iph->saddr = inet_addr ( source_ip );	//Spoof the source ip address
-			iph->daddr = dest_ip.s_addr; //FIXME var dest_ip (really not just dest?)
+			iph->daddr = dest_ip.s_addr;
 
 	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl / or never - maybe the kernel does this for us?
 
-    	//TODO tcp
+    	//TODO icmp
+			icmphd->type = ICMP_ECHO; // ping request
+      icmphd->code = 0;					//
+      icmphd->checksum = 0;
+      icmphd->un.echo.id = 0;
+      icmphd->un.echo.sequence = hop + 1; //TODO das sollte evtl mit in die Schleife
+
+			//TODO setting up sending socket
+
+			//TODO create listener socket
+
   	//TODO unsigned char ttl = 1;
+
   	//TODO while loop
 
     	//TODO set ttl in ip header

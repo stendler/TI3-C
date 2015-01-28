@@ -41,8 +41,8 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 #include <netinet/tcp.h>	//Provides declarations for tcp header
 #include <netinet/ip.h>	//Provides declarations for ip header
 //#include <pthread.h>
-//#include <netdb.h>	//hostend
-//#include <arpa/inet.h>
+#include <netdb.h>	//hostend
+#include <arpa/inet.h>
 
 //holt die lokale ip adresse aus einem socket paket, das nach draußen geschickt wird
 int get_local_ip ( char * buffer)
@@ -65,9 +65,10 @@ int get_local_ip ( char * buffer)
 	socklen_t namelen = sizeof(name);
 	err = getsockname(sock, (struct sockaddr*) &name, &namelen);
 
-	const char *p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
+	inet_ntop(AF_INET, &name.sin_addr, buffer, 100); //removed unused pointer
 
 	close(sock);
+	return err; //err was unused
 }
 
 /*
@@ -82,7 +83,7 @@ char* hostname_to_ip(char * hostname)
 	if ( (he = gethostbyname( hostname ) ) == NULL)
 	{
 		// get the host info
-		herror("gethostbyname");
+		herror("gethostbyname"); //FIXME impplicit declaration of herror
 		return NULL;
 	}
 
@@ -97,16 +98,6 @@ char* hostname_to_ip(char * hostname)
 	return NULL;
 }
 
-struct pseudo_header    //needed for checksum calculation
-{
-	unsigned int source_address; //u_int32_t
-	unsigned int dest_address;   //u_int32_t
-	unsigned char placeholder;   //u_int8_t
-	unsigned char protocol;      //u_int8_t
-	unsigned short tcp_length;   //u_int16_t
-
-	struct tcphdr tcp;           // not in 1st source
-};
 
 //main
 int main(int argc, char *argv[])
@@ -144,7 +135,7 @@ int main(int argc, char *argv[])
     	//Datagram to represent the packet
 			char datagram[4096];
 			memset (datagram, 0, 4096);	// zero out the buffer
-			//WIP ip
+			//ip
 
 				//get local ip
 				char source_ip[20]; //TODO memset?
@@ -153,7 +144,7 @@ int main(int argc, char *argv[])
 
 				//get host ip
 				struct in_addr dest_ip;
-				struct sockaddr_in  dest,recv;
+				struct sockaddr_in  dest;
 				char *target = argv[1];
 
 				if( inet_addr( target ) != -1)
@@ -162,7 +153,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					char *ip = hostname_to_ip(target); //FIXME function currently not existent
+					char *ip = hostname_to_ip(target);
 					if(ip != NULL)
 					{
 						printf("%s resolved to %s \n" , target , ip);
@@ -182,12 +173,12 @@ int main(int argc, char *argv[])
 			struct iphdr *iph = (struct iphdr *) datagram;
 
 			//TCP header
-			struct icmphdr *icmph = (struct icmphdr *) (datagram + sizeof (struct ip));
+			struct icmphdr *icmphd = (struct icmphdr *) (datagram + sizeof (struct ip));
 
 			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
 			iph->tos = 0; //XXX unknown use
-			iph->tot_len = sizeof (struct ip) + sizeof (struct icmphdr);
+			iph->tot_len = sizeof (struct ip) + sizeof (struct icmphdr); //FIXME incomplete type 'struct ip'
 			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
 			iph->frag_off = htons(16384); //XXX unknown use
 			iph->ttl = 0; 			//we need this one later
@@ -197,7 +188,7 @@ int main(int argc, char *argv[])
 			iph->daddr = dest_ip.s_addr;
 
     	//icmp
-			icmphd->type = ICMP_ECHO; // ping request
+			icmphd->type = ICMP_ECHO; // ping request FIXME undeclared
       icmphd->code = 0;					//
       icmphd->checksum = 0;
       icmphd->un.echo.id = 0;
@@ -224,7 +215,7 @@ int main(int argc, char *argv[])
 				//icmp->checksum = ...
 				//TODO multiple simultanously ? --> for loop which does'nt incr ttl but sends 3 packages
 					//send custom ip header with icmp header in body and ttl
-					sendto (sd, buf, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest);
+					sendto (sd, datagram, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest); //TODO is datagram really complete
     			//receive ICMP packets
 					char rcvbuffer[4096] = { 0 };
 					recvfrom (sd, rcvbuffer, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);

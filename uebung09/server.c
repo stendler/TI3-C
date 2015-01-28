@@ -1,15 +1,17 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-//#include <arpa/inet.h>	//inet_addr
+#include <netinet/in.h>
+#include <arpa/inet.h>	//inet_addr
+#include <netdb.h>
 #include <unistd.h> //write
 
 //TI3 - Uebung 09
 //Tutor: Thomas
 //Bearbeiter: Jasmine Cavael und Maximilian Stendler
-// Ver 1.6
+// Ver 1.7
 //main() - creates a tcp/ip4 socket
 int main(int argc, char *argv[])
 {
@@ -19,12 +21,13 @@ int main(int argc, char *argv[])
     return 1;
   }else{
 
-    int status // used for getaddrinfo to check if an error occured or not if value is other than 0 an error occcured
-    int port;
+    int status; // used for getaddrinfo to check if an error occured or not if value is other than 0 an error occcured
+    //int port;
     int socket_descriptor, client_socket;
-    struct addrinfo server, server_res, client;
+    struct addrinfo server, *server_res, client;
     char client_message[2000];
 
+/*
     //read Parameter
     port = atoi(argv[1]); //string to int?!?!
     if(port <= 0){
@@ -33,9 +36,9 @@ int main(int argc, char *argv[])
     }
     printf("Port is %i \n",port);
     fflush(stdout);
-
+*/
     //setup sockaddr addrinfo structure
-    memset(&server, 0 sizeof server);
+    memset(&server, 0, sizeof server);
 
     server.ai_family = AF_UNSPEC;
     server.ai_socktype = SOCK_STREAM;     //Type - SOCK_DGRAM - UDP
@@ -116,6 +119,8 @@ int main(int argc, char *argv[])
       fputs("Receiving message failed.",stderr);
     }
 
+    close(client_socket);
+    close(socket_descriptor);
     return 0; // end of program
   }
 }

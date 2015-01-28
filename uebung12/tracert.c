@@ -44,6 +44,32 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 //#include <netdb.h>	//hostend
 //#include <arpa/inet.h>
 
+//holt die lokale ip adresse aus einem socket paket, das nach draußen geschickt wird
+int get_local_ip ( char * buffer)
+{
+	int sock = socket ( AF_INET, SOCK_DGRAM, 0);
+
+	const char* kGoogleDnsIp = "8.8.8.8";
+	int dns_port = 53;
+
+	struct sockaddr_in serv;
+
+	memset( &serv, 0, sizeof(serv) );
+	serv.sin_family = AF_INET;
+	serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
+	serv.sin_port = htons( dns_port );
+
+	int err = connect( sock , (const struct sockaddr*) &serv , sizeof(serv) );
+
+	struct sockaddr_in name;
+	socklen_t namelen = sizeof(name);
+	err = getsockname(sock, (struct sockaddr*) &name, &namelen);
+
+	const char *p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
+
+	close(sock);
+}
+
 struct pseudo_header    //needed for checksum calculation
 {
 	unsigned int source_address; //u_int32_t
@@ -113,29 +139,31 @@ int main(int argc, char *argv[])
 	int source_port = 43591;
 
 	memset (datagram, 0, 4096);	// zero out the buffer
-		*/
+
+		END unplaced source code container*/
+
   	//TODO create listener socket
 
   	//TODO build custom headers
     	//TODO ip
 				//get local ip
 				char source_ip[20];
-				get_local_ip( source_ip ); //TODO function currently undeclared
+				get_local_ip( source_ip );
 				printf("Local source IP is %s \n" , source_ip);
 			//Fill in the IP Header
-			iph->ihl = 5;
+			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
-			iph->tos = 0;
-			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr);
-			iph->id = htons (54321);	//Id of this packet //TODO: what does ID mean? seq number?
-			iph->frag_off = htons(16384);
-			iph->ttl = 0; 			//we need this one later
+			iph->tos = 0; //XXX unknown use
+			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr); //FIXME struct tcphdr currently not existent
+			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
+			iph->frag_off = htons(16384); //XXX unknown use
+			iph->ttl = 0; 			//TODO we need this one later
 			iph->protocol = IPPROTO_TCP;
 			iph->check = 0;		//Set to 0 before calculating checksum
 			iph->saddr = inet_addr ( source_ip );	//Spoof the source ip address
-			iph->daddr = dest_ip.s_addr;
+			iph->daddr = dest_ip.s_addr; //FIXME var dest_ip currently not existent
 
-	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl
+	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl / or never - maybe the kernel does this for us?
 
     	//TODO tcp/udp
   	//TODO unsigned char ttl = 1;

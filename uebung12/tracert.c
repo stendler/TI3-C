@@ -177,6 +177,32 @@ char* hostname_to_ip(char * hostname)
 	return NULL;
 }
 
+/*
+ Checksums - IP and TCP
+ */
+unsigned short csum(unsigned short* ptr,int nbytes)
+{
+	register long sum;
+	unsigned short oddbyte;
+	register short answer;
+
+	sum=0;
+	while(nbytes>1) {
+		sum+=*ptr++;
+		nbytes-=2;
+	}
+	if(nbytes==1) {
+		oddbyte=0;
+		*((unsigned char*)&oddbyte) = *(unsigned char*)ptr;
+		sum+=oddbyte;
+	}
+
+	sum = (sum>>16)+(sum & 0xffff);
+	sum = sum + (sum>>16);
+	answer=(short)~sum;
+
+	return(answer);
+}
 
 //main
 int main(int argc, char *argv[])
@@ -289,9 +315,9 @@ int main(int argc, char *argv[])
 			while(ttl <= 255){
 				//set ttl in ip header
 				iph->ttl = ttl;
-				//TODO package / checksum? &more
-				//iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
-				//icmp->checksum = ...
+				//package / checksum? &more
+				iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
+				icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
 				//TODO multiple simultanously ? --> for loop which does'nt incr ttl but sends 3 packages
 					//send custom ip header with icmp header in body and ttl
 					sendto (sd, datagram, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest); //TODO is datagram really complete

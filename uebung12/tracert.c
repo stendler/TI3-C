@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   if(argc == 2){
 
   	//create send socket
-  	int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW
+  	int sd = socket (PF_INET, SOCK_RAW, IPPROTO_TCP); //IPv4,Raw-socket, IPPROTO_TCP/RAW TODO IPPROTO_RAW and we save goto1 later
   	if(sd == -1)
   	{
     	//socket creation failed, may be because of non-root privileges
@@ -97,13 +97,35 @@ int main(int argc, char *argv[])
   	}
 		/* TODO: this is a container for code used in sources but I couldn't find use for yet
 
-	//TCP header
-	struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
-
 	struct pseudo_header psh;
 
 	int source_port = 43591;
 
+	//TCP Header
+	tcph->source = htons ( source_port );
+	tcph->dest = htons (80);
+	tcph->seq = htonl(1105024978);
+	tcph->ack_seq = 0;
+	tcph->doff = sizeof(struct tcphdr) / 4;		//Size of tcp header
+	tcph->fin=0;
+	tcph->syn=1;
+	tcph->rst=0;
+	tcph->psh=0;
+	tcph->ack=0;
+	tcph->urg=0;
+	tcph->window = htons ( 14600 );	// maximum allowed window size
+	tcph->check = 0; //if you set a checksum to zero, your kernel's IP stack should fill in the correct checksum during transmission
+	tcph->urg_ptr = 0;
+
+	//IP_HDRINCL to tell the kernel that headers are included in the packet TODO goto1
+	int one = 1;
+	const int *val = &one;
+
+	if (setsockopt (sd, IPPROTO_IP, IP_HDRINCL, val, sizeof (one)) < 0)
+	{
+		printf ("Error setting IP_HDRINCL. Error number : %d . Error message : %s \n" , errno , strerror(errno));
+		exit(0);
+	}
 
 		END unplaced source code container*/
 
@@ -130,7 +152,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					char *ip = hostname_to_ip(target);
+					char *ip = hostname_to_ip(target); //FIXME function currently not existent
 					if(ip != NULL)
 					{
 						printf("%s resolved to %s \n" , target , ip);
@@ -149,10 +171,13 @@ int main(int argc, char *argv[])
 			//IP header
 			struct iphdr *iph = (struct iphdr *) datagram;
 
+			//TCP header
+			struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
+
 			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
 			iph->tos = 0; //XXX unknown use
-			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr); //FIXME struct tcphdr currently not existent
+			iph->tot_len = sizeof (struct ip) + sizeof (struct tcphdr);
 			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
 			iph->frag_off = htons(16384); //XXX unknown use
 			iph->ttl = 0; 			//TODO we need this one later
@@ -163,7 +188,7 @@ int main(int argc, char *argv[])
 
 	iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this later -> in loop after changing ttl / or never - maybe the kernel does this for us?
 
-    	//TODO tcp/udp
+    	//TODO tcp
   	//TODO unsigned char ttl = 1;
   	//TODO while loop
 

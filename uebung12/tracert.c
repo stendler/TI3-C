@@ -31,18 +31,97 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 //CODE - SOURCES:
 //http://www.binarytides.com/raw-sockets-c-code-linux/
 ////http://www.binarytides.com/tcp-syn-portscan-in-c-with-linux-sockets/
+//https://stackoverflow.com/questions/15458438/implementing-traceroute-using-icmp-in-c
+//http://unix.superglobalmegacorp.com/Net2/newsrc/netinet/ip_icmp.h.html
+//
+
+//#define _GNU_SOURCE
 
 //includes
 #include <stdio.h>	//for printf
-#include <string.h> //memset
-#include <sys/socket.h>	//for socket ofcourse
 #include <stdlib.h> //for exit(0);
-#include <errno.h> //For errno - the error number
-#include <netinet/tcp.h>	//Provides declarations for tcp header
-#include <netinet/ip.h>	//Provides declarations for ip header
-//#include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>	//for socket ofcourse
 #include <netdb.h>	//hostend
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>	//Provides declarations for ip header
+#include <netinet/ip_icmp.h>
+#include <string.h> //memset
 #include <arpa/inet.h>
+//#include <sys/select.h>
+#include <errno.h> //For errno - the error number
+//#include <netinet/tcp.h>	//Provides declarations for tcp header
+//source stackoverflow TODO test which headers are really needed
+//#include <unistd.h>
+//#include <sys/ipc.h>
+//#include <fcntl.h>
+//#include <sys/stat.h>
+//#include <sys/sem.h>
+//#include <signal.h>
+//#include <poll.h>
+//#include <pthread.h>
+//#include <sys/un.h>
+
+/* IP header structure */
+    struct ip {
+
+        unsigned char      ihl;
+        unsigned char      version;
+        unsigned char      tos;
+        unsigned short int len;
+        unsigned short int id;
+        unsigned char      flags;
+        unsigned short int offset;
+        unsigned char      ttl;
+        unsigned char      protocol;
+        unsigned short int chksum;
+        unsigned int       sourceip;
+        unsigned int       destip;
+
+        };
+
+struct icmp {
+	unsigned char	icmp_type;		// type of message, see below
+	unsigned char	icmp_code;		// type sub code
+	unsigned short	icmp_cksum;		// ones complement cksum of struct
+	union {
+		unsigned char ih_pptr;			// ICMP_PARAMPROB
+		struct in_addr ih_gwaddr;	// ICMP_REDIRECT
+		struct ih_idseq {
+			n_short	icd_id;
+			n_short	icd_seq;
+		} ih_idseq;
+		int ih_void;
+	} icmp_hun;
+#define	icmp_pptr	icmp_hun.ih_pptr
+#define	icmp_gwaddr	icmp_hun.ih_gwaddr
+#define	icmp_id		icmp_hun.ih_idseq.icd_id
+#define	icmp_seq	icmp_hun.ih_idseq.icd_seq
+#define	icmp_void	icmp_hun.ih_void
+	union {
+		struct id_ts {
+			n_time its_otime;
+			n_time its_rtime;
+			n_time its_ttime;
+		} id_ts;
+		struct id_ip  {
+			struct ip idi_ip;
+			/* options and then 64 bits of data */
+		} id_ip;
+		unsigned long	id_mask;
+		char	id_data[1];
+	} icmp_dun;
+#define	icmp_otime	icmp_dun.id_ts.its_otime
+#define	icmp_rtime	icmp_dun.id_ts.its_rtime
+#define	icmp_ttime	icmp_dun.id_ts.its_ttime
+#define	icmp_ip		icmp_dun.id_ip.idi_ip
+#define	icmp_mask	icmp_dun.id_mask
+#define	icmp_data	icmp_dun.id_data
+};
+/**/
+
+
 
 //holt die lokale ip adresse aus einem socket paket, das nach draußen geschickt wird
 int get_local_ip ( char * buffer)
@@ -67,7 +146,7 @@ int get_local_ip ( char * buffer)
 
 	inet_ntop(AF_INET, &name.sin_addr, buffer, 100); //removed unused pointer
 
-	close(sock);
+	//close(sock);
 	return err; //err was unused
 }
 
@@ -83,7 +162,7 @@ char* hostname_to_ip(char * hostname)
 	if ( (he = gethostbyname( hostname ) ) == NULL)
 	{
 		// get the host info
-		herror("gethostbyname"); //FIXME impplicit declaration of herror
+		perror("gethostbyname"); //FIXME impplicit declaration of herror
 		return NULL;
 	}
 

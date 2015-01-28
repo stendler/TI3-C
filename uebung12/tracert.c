@@ -309,20 +309,24 @@ int main(int argc, char *argv[])
 
   		//our hop counter which gets incremented;
 			unsigned char ttl = 1;
-			icmphd->un.echo.sequence = ttl;
 
 			//while loop
 			while(ttl <= 255){
 				//set ttl in ip header
 				iph->ttl = ttl;
+				icmphd->un.echo.sequence = ttl;
 				//package / checksum? &more
 				iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
 				icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
+				//DEBUG
+				printf("--(1) checksum\n");
 				//TODO multiple simultanously ? --> for loop which does'nt incr ttl but sends 3 packages
 					//send custom ip header with icmp header in body and ttl
 					sendto (sd, datagram, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest); //TODO is datagram really complete
     			//receive ICMP packets
 					char rcvbuffer[4096] = { 0 };
+					//DEBUG
+					printf("--(2)package send\n");
 					recvfrom (sd, rcvbuffer, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);
 					struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
 					//print [ttl] hop_ip (TODO resolve) [timestamp/delay]
@@ -332,6 +336,8 @@ int main(int argc, char *argv[])
 						return 0;
 					}
 				ttl++;
+				//DEBUG
+				printf("--(3)ttl++\n");
   		}
 	}else{
     //nicht genuegend argumente

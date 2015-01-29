@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
       icmphd->code = 0;					//
       icmphd->checksum = 0;
       //icmphd->un.echo.id = 0;
+      icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
 
 			//setting up sending socket
 			dest.sin_family = AF_INET;
@@ -236,7 +237,7 @@ int main(int argc, char *argv[])
 				//icmphd->un.echo.sequence = ttl;
 				//package / checksum? &more
         iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1);
-				icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
+				//icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
 				//DEBUG
 				//printf("--(2) checksum\n");
 				//TODO multiple simultanously ? --> for-loop which doesn't incr ttl but sends 3 packages
@@ -246,12 +247,17 @@ int main(int argc, char *argv[])
 					char rcvbuffer[4096] = { 0 };
 					//DEBUG
 					//printf("--(3)package send\n");
+          //neuer thread, der recvfrom aufruft? mit timeout
 					recvfrom (sd, rcvbuffer, sizeof(struct iphdr) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);
 					struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
-					//print [ttl] hop_ip (TODO resolve) [timestamp/delay]
-					printf("[%d] %s\n",ttl,inet_ntoa(listener.sin_addr)); //TODO  sind das ueberhaupt meine icmp's --> check that plox
-					if (icmphd2->type == 0){ //TODO weitere Bedingungen, e.g.ist der gewuenschte host im header?
-						printf("\n Destination reached!\n");
+          if(icmphd2->type == 11){ //TODO zusaetzlich die angefragte ip ueberpruefen? (iphdr2 = (struct iphdr *)icmp->data)
+					   //print [ttl] hop_ip (TODO resolve) [timestamp/delay]
+					   printf("[%d] %s\n",ttl,inet_ntoa(listener.sin_addr));
+          }
+					if (icmphd2->type == 0 /*&& &listener.sin_addr == &dest_ip.s_addr*/){ //TODO weitere Bedingungen, e.g.ist der gewuenschte host im header?
+						//print [ttl] hop_ip (TODO resolve) [timestamp/delay]
+            printf("[%d] %s\n",ttl,inet_ntoa(listener.sin_addr));
+            printf("\n Destination reached!\n");
 						return 0;
 					}
   		}

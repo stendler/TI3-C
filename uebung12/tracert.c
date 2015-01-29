@@ -63,8 +63,8 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
 //#include <pthread.h>
 //#include <sys/un.h>
 
-/* IP header structure */
-    struct ip {
+/* IP header structure *
+    struct iphdr {
 
         unsigned char      ihl;
         unsigned char      version;
@@ -79,9 +79,9 @@ Raw-Socket: Raw-Sockets sind Internet-Sockets, die nicht wie Standart-Sockets au
         unsigned int       sourceip;
         unsigned int       destip;
 
-        };
+      }; */
 
-struct icmp {
+/*struct icmphdr {
 	unsigned char	icmp_type;		// type of message, see below
 	unsigned char	icmp_code;		// type sub code
 	unsigned short	icmp_cksum;		// ones complement cksum of struct
@@ -106,8 +106,8 @@ struct icmp {
 			n_time its_ttime;
 		} id_ts;
 		struct id_ip  {
-			struct ip idi_ip;
-			/* options and then 64 bits of data */
+			struct iphdr idi_ip;
+			// options and then 64 bits of data
 		} id_ip;
 		unsigned long	id_mask;
 		char	id_data[1];
@@ -119,7 +119,7 @@ struct icmp {
 #define	icmp_mask	icmp_dun.id_mask
 #define	icmp_data	icmp_dun.id_data
 };
-/**/
+*/
 
 
 
@@ -278,12 +278,12 @@ int main(int argc, char *argv[])
 			struct iphdr *iph = (struct iphdr *) datagram;
 
 			//TCP header
-			struct icmphdr *icmphd = (struct icmphdr *) (datagram + sizeof (struct ip));
+			struct icmphdr *icmphd = (struct icmphdr *) (datagram + sizeof (struct iphdr));
 
 			iph->ihl = 5; //XXX unknown use
 			iph->version = 4;
 			iph->tos = 0; //XXX unknown use
-			iph->tot_len = sizeof (struct ip) + sizeof (struct icmphdr); //FIXME incomplete type 'struct ip'
+			iph->tot_len = sizeof (struct iphdr) + sizeof (struct icmphdr);
 			iph->id = htons (54321);	//Id of this packet //XXX: what does ID mean? seq number?
 			iph->frag_off = htons(16384); //XXX unknown use
 			iph->ttl = 0; 			//we need this one later
@@ -296,38 +296,41 @@ int main(int argc, char *argv[])
 			icmphd->type = ICMP_ECHO; // ping request FIXME undeclared
       icmphd->code = 0;					//
       icmphd->checksum = 0;
-      icmphd->un.echo.id = 0;
+      //icmphd->un.echo.id = 0;
 
 			//setting up sending socket
 			dest.sin_family = AF_INET;
 			dest.sin_addr.s_addr = dest_ip.s_addr;
-			dest.sin_port = htons(7); //TODO ping port?
+			dest.sin_port = htons(80); //TODO ping port?
 
 			//create listener socket_addr
 			struct sockaddr_in listener;
 			socklen_t saddr_len = sizeof (struct sockaddr_in);
 
   		//our hop counter which gets incremented;
-			unsigned char ttl = 1;
+			unsigned char ttl = 0;
 
 			//while loop
 			while(ttl <= 255){
+        ttl++;
+        //DEBUG
+        printf("--(1)ttl++\n");
 				//set ttl in ip header
 				iph->ttl = ttl;
-				icmphd->un.echo.sequence = ttl;
+				//icmphd->un.echo.sequence = ttl;
 				//package / checksum? &more
-				iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
+        iph->check = csum ((unsigned short *) datagram, iph->tot_len >> 1); //TODO put this never - maybe the kernel does this for us?
 				icmphd->checksum = csum((unsigned short *) (datagram + 20), 4);
 				//DEBUG
-				printf("--(1) checksum\n");
+				printf("--(2) checksum\n");
 				//TODO multiple simultanously ? --> for loop which does'nt incr ttl but sends 3 packages
 					//send custom ip header with icmp header in body and ttl
-					sendto (sd, datagram, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest); //TODO is datagram really complete
+					sendto (sd, datagram, sizeof(struct iphdr) + sizeof(struct icmphdr), 0, (struct sockaddr *)&dest, sizeof dest); //TODO is datagram really complete
     			//receive ICMP packets
 					char rcvbuffer[4096] = { 0 };
 					//DEBUG
-					printf("--(2)package send\n");
-					recvfrom (sd, rcvbuffer, sizeof(struct ip) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);
+					printf("--(3)package send\n");
+					recvfrom (sd, rcvbuffer, sizeof(struct iphdr) + sizeof(struct icmphdr), 0, (struct sockaddr *) &listener, &saddr_len);
 					struct icmphdr *icmphd2 = (struct icmphdr *) (rcvbuffer + 20);
 					//print [ttl] hop_ip (TODO resolve) [timestamp/delay]
 					printf("[%d] %s\n",ttl,inet_ntoa(listener.sin_addr));
@@ -335,9 +338,6 @@ int main(int argc, char *argv[])
 						printf("\n Destination reached!\n");
 						return 0;
 					}
-				ttl++;
-				//DEBUG
-				printf("--(3)ttl++\n");
   		}
 	}else{
     //nicht genuegend argumente
